@@ -1,0 +1,156 @@
+.header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+
+    .logo-icon {
+      margin-right: 0.5rem;
+      color: #e63946;
+    }
+  }
+
+  .nav {
+    display: flex;
+    gap: 1.5rem;
+
+    a {
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      position: relative;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #e63946;
+      }
+
+      &::after {
+        content: "";
+        display: block;
+        width: 0%;
+        height: 2px;
+        background: #e63946;
+        transition: width 0.3s;
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+      }
+
+      &:hover::after {
+        width: 100%;
+      }
+    }
+  }
+
+  .cta-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #e63946;
+    color: #fff;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #d52e3c;
+    }
+  }
+
+  .header-buttons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .login-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: #1d3557;
+      color: #fff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #16324d;
+      }
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .user-greeting {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #1d3557;
+        color: #fff;
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px 0 0 8px;
+        font-weight: 600;
+      }
+
+      .logout-button {
+        background-color: #e63946;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        height: 100%;
+        border: none;
+        border-radius: 0 8px 8px 0;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.3s;
+
+        &:hover {
+          background-color: #d52e3c;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .nav {
+      display: none;
+    }
+    
+    .header-buttons {
+      .user-menu {
+        flex-direction: column;
+        align-items: flex-end;
+        
+        .user-greeting, 
+        .logout-button {
+          border-radius: 4px;
+          font-size: 0.9rem;
+          padding: 0.4rem 0.8rem;
+        }
+      }
+    }
+  }
+}

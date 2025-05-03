@@ -1,0 +1,189 @@
+// frontend/src/pages/Login/LoginCadastro.scss
+.login-cadastro-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #12171d, #e63946);
+  padding: 1rem;
+  
+  .login-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+    padding: 3rem 2rem;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    
+    .logo {
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      
+      svg {
+        font-size: 2rem;
+        color: #e63946;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+        color: #333;
+        margin: 0;
+        
+        span {
+          color: #e63946;
+          font-weight: 300;
+        }
+      }
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+    
+    .access-options {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      
+      .access-option {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        padding: 1.2rem;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+        color: inherit;
+        text-align: left;
+        
+        &:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+          border-color: #e63946;
+          
+          .icon-container {
+            background: #e63946;
+          }
+          
+          &:nth-child(2) .icon-container {
+            background: #e63946;
+          }
+        }
+        
+        .icon-container {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: #f1f9fe;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-right: 1.5rem;
+          transition: all 0.3s ease;
+          flex-shrink: 0;
+          
+          svg {
+            font-size: 1.8rem;
+            color: #000;
+          }
+          
+          &.admin {
+            background: #fef1f0;
+            
+            svg {
+              color: #000;
+            }
+          }
+        }
+        
+        .option-info {
+          flex: 1;
+          
+          h3 {
+            font-size: 1.25rem;
+            margin: 0 0 0.5rem;
+            color: #333;
+          }
+          
+          p {
+            margin: 0;
+            color: #777;
+            font-size: 0.875rem;
+          }
+        }
+      }
+    }
+    
+    .back-link {
+      margin-top: 1rem;
+      
+      a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #7f8c8d;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+        
+        &:hover {
+          color: #e63946;
+        }
+      }
+    }
+  }
+  
+  // Responsividade
+  @media (max-width: 576px) {
+    padding: 1rem;
+    
+    .login-container {
+      padding: 2rem 1.5rem;
+      
+      .logo h1 {
+        font-size: 1.6rem;
+      }
+      
+      h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      .access-options {
+        gap: 1rem;
+        
+        .access-option {
+          padding: 1rem;
+          
+          .icon-container {
+            width: 50px;
+            height: 50px;
+            margin-right: 1rem;
+            
+            svg {
+              font-size: 1.5rem;
+            }
+          }
+          
+          .option-info {
+            h3 {
+              font-size: 1.1rem;
+            }
+            
+            p {
+              font-size: 0.75rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}

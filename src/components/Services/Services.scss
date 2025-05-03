@@ -1,0 +1,71 @@
+.services {
+    padding: 4rem 2rem;
+    background-color: #ffffff;
+  
+    .services__container {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+  
+      .tag {
+        font-size: 1rem;
+        color: #fff;
+        background-color: #457b9d;
+        padding: 0.25rem 0.75rem;
+        border-radius: 5px;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+  
+      h2 {
+        font-size: 2.5rem;
+        color: #1d3557;
+        margin-bottom: 0.5rem;
+      }
+  
+      .subtitle {
+        font-size: 1.1rem;
+        color: #555;
+        margin-bottom: 3rem;
+      }
+  
+      .services__cards {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+  
+      .service__card {
+        background-color: #f1f1f1;
+        border-radius: 12px;
+        padding: 2rem;
+        flex: 1 1 250px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+  
+        &:hover {
+          transform: translateY(-5px);
+        }
+  
+        .icon {
+          font-size: 3rem;
+          color: #e63946;
+          margin-bottom: 1rem;
+        }
+  
+        h3 {
+          font-size: 1.5rem;
+          color: #1d3557;
+          margin-bottom: 0.5rem;
+        }
+  
+        p {
+          color: #444;
+          font-size: 1rem;
+          line-height: 1.6;
+        }
+      }
+    }
+  }
+  
