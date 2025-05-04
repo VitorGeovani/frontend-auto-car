@@ -9,25 +9,70 @@ const api = axios.create({
   timeout: 10000
 });
 
-// Função para limpar o cache para garantir que dados atualizados sejam carregados
+// Função aprimorada para limpar cache preservando tokens de autenticação
 const clearApiCache = () => {
-  // Lista de chaves possíveis no localStorage e sessionStorage
+  console.log('Limpando cache da API e aplicação...');
+  
+  // IMPORTANTE: Salvar tokens antes de limpar cache
+  const adminToken = localStorage.getItem('adminToken');
+  const adminData = localStorage.getItem('adminData');
+  const userToken = localStorage.getItem('userToken');
+  const userData = localStorage.getItem('userData');
+  
+  // Lista de chaves padrão para limpeza
   const cacheKeys = [
-    'carros_cache',
-    'estoque_cache',
-    'veiculos_cache',
-    'dashboard_cache',
-    'categorias_cache',
-    'depoimentos_cache' // Adicionar cache de depoimentos
+    'carros_cache', 'estoque_cache', 'veiculos_cache', 
+    'dashboard_cache', 'categorias_cache', 'depoimentos_cache',
+    'carros_data', 'estoque_data', 'veiculos_data',
+    'dashboard_data', 'categorias_data', 'depoimentos_data'
   ];
   
-  // Limpar todas as chaves de cache conhecidas
+  // Limpar todas as chaves conhecidas
   cacheKeys.forEach(key => {
     localStorage.removeItem(key);
     sessionStorage.removeItem(key);
   });
   
-  console.log('Cache da API limpo');
+  // Limpar chaves que sigam padrões comuns de cache
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (key.includes('_cache') || key.includes('_data') || 
+        key.includes('api_') || key.includes('cached_')) && 
+        key !== 'adminToken' && key !== 'adminData' && 
+        key !== 'userToken' && key !== 'userData') {
+      localStorage.removeItem(key);
+    }
+  }
+  
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (key && (key.includes('_cache') || key.includes('_data') || 
+        key.includes('api_') || key.includes('cached_')) && 
+        key !== 'adminToken' && key !== 'adminData' && 
+        key !== 'userToken' && key !== 'userData') {
+      sessionStorage.removeItem(key);
+    }
+  }
+  
+  // IMPORTANTE: Restaurar tokens após limpeza
+  if (adminToken) localStorage.setItem('adminToken', adminToken);
+  if (adminData) localStorage.setItem('adminData', adminData);
+  if (userToken) localStorage.setItem('userToken', userToken);
+  if (userData) localStorage.setItem('userData', userData);
+  
+  console.log('Cache limpo com sucesso (tokens preservados)');
+  
+  // Limpar também cache do serviço worker se existir
+  if ('caches' in window) {
+    caches.keys().then(cacheNames => {
+      cacheNames.forEach(cacheName => {
+        if (cacheName.includes('api-cache')) {
+          caches.delete(cacheName);
+          console.log(`Cache do service worker '${cacheName}' removido`);
+        }
+      });
+    });
+  }
 };
 
 // Interceptador para incluir o token de autenticação
@@ -71,7 +116,7 @@ api.interceptors.request.use(
       
       // Para operações de modificação, limpar cache global primeiro
       if (config.method === 'put' || config.method === 'post' || config.method === 'delete') {
-        clearApiCache();
+        clearApiCache(); // Agora preserva tokens
       }
       
       // Adicionar timestamp para garantir URLs únicas
@@ -97,7 +142,22 @@ api.interceptors.response.use(
     
     // Se for uma modificação de dados, limpar cache para garantir dados atualizados
     if (isDataModification) {
-      clearApiCache();
+      clearApiCache(); // Agora preserva tokens
+      
+      // Para modificações em carros ou estoque, revalidar dados relacionados
+      if (response.config.url.includes('/carros') || response.config.url.includes('/estoque')) {
+        console.log('Operação de veículo detectada - atualizando cache');
+        
+        // Forçar recarregamento de dados relacionados
+        setTimeout(() => {
+          // Recarregar listagens principais
+          api.get('/carros?_nocache=' + new Date().getTime())
+            .catch(e => console.warn('Falha ao revalidar lista de carros:', e));
+            
+          api.get('/estoque?_nocache=' + new Date().getTime())
+            .catch(e => console.warn('Falha ao revalidar estoque:', e));
+        }, 500);
+      }
       
       // Para operações de depoimentos, revalidar dados
       if (response.config.url.includes('/depoimentos')) {
