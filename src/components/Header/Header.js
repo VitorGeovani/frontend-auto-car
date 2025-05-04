@@ -55,8 +55,8 @@ const Header = () => {
     <header className="header">
       <div className="container">
         <div className="logo">
-          <a href="/" className="logo-link"><FaCar className="logo-icon" /></a>
-          <span>Auto Car</span>
+        <FaCar className="logo-icon" />
+          <a href="/" className="logo-link"><span>Auto Car</span></a>
         </div>
         <nav className="nav">
           <a href="#about">Sobre</a>

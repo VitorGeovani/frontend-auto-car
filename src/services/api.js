@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const api = axios.create({
   baseURL: 'http://localhost:3001',
@@ -16,7 +17,8 @@ const clearApiCache = () => {
     'estoque_cache',
     'veiculos_cache',
     'dashboard_cache',
-    'categorias_cache'
+    'categorias_cache',
+    'depoimentos_cache' // Adicionar cache de depoimentos
   ];
   
   // Limpar todas as chaves de cache conhecidas
@@ -34,15 +36,23 @@ api.interceptors.request.use(
     const adminToken = localStorage.getItem('adminToken');
     const userToken = localStorage.getItem('userToken');
     
-    // Modificado para incluir também rotas /api/ para token de admin
-    if (adminToken && (config.url.includes('/admin') || config.url.includes('/auth/admin') || config.url.includes('/api/interesses'))) {
+    // Verificar se é uma rota administrativa ou de depoimentos admin
+    const isAdminRoute = 
+      config.url.includes('/admin') || 
+      config.url.includes('/auth/admin') || 
+      config.url.includes('/api/interesses') ||
+      (config.url.includes('/depoimentos') && 
+       (config.url.includes('/admin') || config.method !== 'get'));
+    
+    // Usar token adequado baseado no tipo de rota
+    if (adminToken && isAdminRoute) {
       config.headers.Authorization = `Bearer ${adminToken}`;
-    } else if (userToken) {
+    } else if (userToken && !isAdminRoute) {
       config.headers.Authorization = `Bearer ${userToken}`;
     }
     
     // Melhorar anti-cache para todas as rotas de dados - especialmente para operações de modificação
-    const noCacheRoutes = ['/carros', '/estoque', '/admin', '/api', '/veiculos', '/uploads'];
+    const noCacheRoutes = ['/carros', '/estoque', '/admin', '/api', '/veiculos', '/uploads', '/depoimentos'];
     
     // Se for uma rota que precisa ignorar cache ou qualquer operação de modificação
     if (noCacheRoutes.some(route => config.url.includes(route)) || 
@@ -89,16 +99,22 @@ api.interceptors.response.use(
     if (isDataModification) {
       clearApiCache();
       
-      // Para operações de edição de recursos específicos como carros
-      if (response.config.url.includes('/carros/')) {
-        console.log('Operação de edição de carro detectada - atualizando cache');
+      // Para operações de depoimentos, revalidar dados
+      if (response.config.url.includes('/depoimentos')) {
+        console.log('Operação de depoimentos detectada - atualizando cache');
         
-        // Forçar recarregamento de dados relacionados para garantir consistência
+        // Forçar recarregamento de dados relacionados
         setTimeout(() => {
-          api.get('/carros?_nocache=' + new Date().getTime()).catch(e => 
-            console.warn('Falha ao revalidar lista de carros:', e));
-          api.get('/estoque?_nocache=' + new Date().getTime()).catch(e => 
-            console.warn('Falha ao revalidar estoque:', e));
+          // Recarregar depoimentos públicos para atualização da página inicial
+          api.get('/depoimentos?_nocache=' + new Date().getTime())
+            .catch(e => console.warn('Falha ao revalidar lista de depoimentos:', e));
+            
+          // Se for uma rota admin, atualizar também os depoimentos do admin
+          if (response.config.url.includes('/admin') || 
+              localStorage.getItem('adminToken')) {
+            api.get('/depoimentos/admin?_nocache=' + new Date().getTime())
+              .catch(e => console.warn('Falha ao revalidar lista de depoimentos admin:', e));
+          }
         }, 500);
       }
     }
@@ -108,24 +124,31 @@ api.interceptors.response.use(
   error => {
     console.error('Erro na requisição API:', error);
     
-    if (
-      error.response && 
-      error.response.status === 401 && 
-      !error.config.url.includes('login')
-    ) {
+    // Verificar se é erro de autenticação e a rota
+    if (error.response && error.response.status === 401) {
       console.log('Token expirado ou inválido');
       
-      if (error.config.url.includes('/admin') || error.config.url.includes('/api/interesses')) {
+      const isAdminRoute = 
+        error.config.url.includes('/admin') || 
+        error.config.url.includes('/api/interesses') ||
+        (error.config.url.includes('/depoimentos') && error.config.url.includes('/admin'));
+      
+      if (isAdminRoute) {
+        // Não fazer redirecionamento automático para login de admin
+        // Apenas limpar o token para que componentes possam decidir o que fazer
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminData');
         
-        if (window.location.pathname.includes('/admin')) {
-          window.location.href = '/admin/login';
-        }
+        // Mostrar um toast, mas não redirecionar automaticamente
+        toast.error('Sua sessão administrativa expirou. Por favor, faça login novamente.');
       } else {
         localStorage.removeItem('userToken');
         localStorage.removeItem('userData');
-        window.location.href = '/cliente-login';
+        
+        // Se não for rota admin, pode redirecionar para login de cliente
+        if (!window.location.pathname.includes('/admin')) {
+          window.location.href = '/cliente-login';
+        }
       }
     }
     

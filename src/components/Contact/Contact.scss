@@ -69,6 +69,14 @@
           border-radius: 5px;
           font-size: 1rem;
           background-color: rgba(255, 255, 255, 0.9);
+          
+          // Estilo para campos pré-preenchidos quando usuário está logado
+          &.pre-filled {
+            background-color: rgba(233, 249, 238, 0.9);
+            border-left: 3px solid #28a745;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.2);
+            transition: all 0.3s ease;
+          }
         }
   
         button {
@@ -124,5 +132,108 @@
   // Ajustar controles do Leaflet para evitar sobreposição com o conteúdo
   .leaflet-control-container {
     z-index: 2;
+  }
+
+  // Adicionar depois dos estilos existentes
+
+  .form-type-selector {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 20px;
+    
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 8px 15px;
+      border-radius: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      
+      input {
+        margin: 0;
+      }
+    }
+  }
+
+  .success-message {
+    background-color: rgba(46, 213, 115, 0.9);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .error-message {
+    background-color: rgba(255, 71, 87, 0.9);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  // Nova classe para mensagem informativa quando usuário está logado
+  .info-message {
+    background-color: rgba(86, 130, 255, 0.9);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .avaliacao-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    
+    label {
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .estrelas {
+      display: flex;
+      gap: 5px;
+      
+      .estrela {
+        font-size: 1.5rem;
+        color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          transform: scale(1.2);
+        }
+        
+        &.ativa {
+          color: #FFD700;
+        }
+      }
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }

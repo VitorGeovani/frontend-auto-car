@@ -1,8 +1,9 @@
-// frontend/src/pages/Admin/TestimonialList.js
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import './TestimonialList.scss';
-import { FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaTrash, FaSync } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const TestimonialList = () => {
   const [depoimentos, setDepoimentos] = useState([]);
@@ -10,34 +11,82 @@ const TestimonialList = () => {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedDepoimento, setSelectedDepoimento] = useState(null);
-
-  useEffect(() => {
-    fetchDepoimentos();
-  }, []);
+  const [filter, setFilter] = useState('todos'); // 'todos', 'pendentes', 'aprovados'
+  const navigate = useNavigate();
 
   const fetchDepoimentos = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/depoimentos');
+      const token = localStorage.getItem('adminToken');
+      
+      if (!token) {
+        toast.error('Sessão expirada, faça login novamente');
+        navigate('/admin/login');
+        return;
+      }
+      
+      const response = await api.get('/depoimentos/admin', {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache' 
+        },
+        params: { _t: new Date().getTime() }
+      });
+      
       setDepoimentos(response.data);
       setError(null);
     } catch (err) {
       console.error('Erro ao buscar depoimentos:', err);
+      
+      if (err.response && err.response.status === 401) {
+        toast.error('Sessão expirada, faça login novamente');
+        navigate('/admin/login');
+        return;
+      }
+      
       setError('Não foi possível carregar os depoimentos.');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchDepoimentos();
+  }, []);
+
   const updateStatus = async (id, aprovado) => {
     try {
-      await api.put(`/depoimentos/${id}`, { aprovado });
+      const token = localStorage.getItem('adminToken');
+      
+      if (!token) {
+        toast.error('Sessão expirada, faça login novamente');
+        navigate('/admin/login');
+        return;
+      }
+      
+      await api.put(`/depoimentos/${id}`, 
+        { aprovado }, 
+        { headers: { 'Authorization': `Bearer ${token}` }}
+      );
+      
+      // Atualizar o estado local sem precisar refazer a requisição
       setDepoimentos(depoimentos.map(depoimento => 
         depoimento.id === id ? { ...depoimento, aprovado } : depoimento
       ));
+      
+      toast.success(aprovado ? 
+        'Depoimento aprovado com sucesso!' : 
+        'Depoimento reprovado com sucesso!');
     } catch (err) {
       console.error('Erro ao atualizar status do depoimento:', err);
-      alert('Erro ao atualizar status do depoimento. Tente novamente.');
+      
+      if (err.response && err.response.status === 401) {
+        toast.error('Sessão expirada, faça login novamente');
+        navigate('/admin/login');
+        return;
+      }
+      
+      toast.error('Erro ao atualizar status do depoimento. Tente novamente.');
     }
   };
 
@@ -50,13 +99,33 @@ const TestimonialList = () => {
     if (!selectedDepoimento) return;
     
     try {
-      await api.delete(`/depoimentos/${selectedDepoimento.id}`);
+      const token = localStorage.getItem('adminToken');
+      
+      if (!token) {
+        toast.error('Sessão expirada, faça login novamente');
+        navigate('/admin/login');
+        return;
+      }
+      
+      await api.delete(`/depoimentos/${selectedDepoimento.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      // Atualizar o estado local sem precisar refazer a requisição
       setDepoimentos(depoimentos.filter(d => d.id !== selectedDepoimento.id));
       setShowDeleteModal(false);
       setSelectedDepoimento(null);
+      toast.success('Depoimento excluído com sucesso!');
     } catch (err) {
       console.error('Erro ao excluir depoimento:', err);
-      alert('Erro ao excluir depoimento. Tente novamente.');
+      
+      if (err.response && err.response.status === 401) {
+        toast.error('Sessão expirada, faça login novamente');
+        navigate('/admin/login');
+        return;
+      }
+      
+      toast.error('Erro ao excluir depoimento. Tente novamente.');
     }
   };
 
@@ -64,23 +133,60 @@ const TestimonialList = () => {
     setShowDeleteModal(false);
     setSelectedDepoimento(null);
   };
+  
+  const handleFilter = (filterType) => {
+    setFilter(filterType);
+  };
+  
+  const filteredDepoimentos = filter === 'todos' 
+    ? depoimentos 
+    : filter === 'pendentes' 
+      ? depoimentos.filter(d => !d.aprovado) 
+      : depoimentos.filter(d => d.aprovado);
 
   if (loading) return <div className="loading">Carregando depoimentos...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  if (error) return (
+    <div className="error-message">
+      {error}
+      <button className="refresh-button" onClick={fetchDepoimentos}>
+        <FaSync /> Tentar novamente
+      </button>
+    </div>
+  );
 
   return (
     <div className="testimonial-list">
-      <h1>Gerenciamento de Depoimentos</h1>
+      <div className="page-header">
+        <h1>Gerenciamento de Depoimentos</h1>
+        <button onClick={fetchDepoimentos} className="refresh-btn">
+          <FaSync /> Atualizar
+        </button>
+      </div>
       
       <div className="filters">
-        <button className="filter-all active">Todos</button>
-        <button className="filter-pending">Pendentes</button>
-        <button className="filter-approved">Aprovados</button>
+        <button 
+          className={`filter-btn ${filter === 'todos' ? 'active' : ''}`}
+          onClick={() => handleFilter('todos')}
+        >
+          Todos ({depoimentos.length})
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'pendentes' ? 'active' : ''}`}
+          onClick={() => handleFilter('pendentes')}
+        >
+          Pendentes ({depoimentos.filter(d => !d.aprovado).length})
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'aprovados' ? 'active' : ''}`}
+          onClick={() => handleFilter('aprovados')}
+        >
+          Aprovados ({depoimentos.filter(d => d.aprovado).length})
+        </button>
       </div>
 
       <div className="testimonial-grid">
-        {depoimentos.length > 0 ? (
-          depoimentos.map((depoimento) => (
+        {filteredDepoimentos.length > 0 ? (
+          filteredDepoimentos.map((depoimento) => (
             <div 
               key={depoimento.id} 
               className={`testimonial-card ${depoimento.aprovado ? 'approved' : 'pending'}`}
@@ -95,6 +201,11 @@ const TestimonialList = () => {
                 <div className="status-badge">
                   {depoimento.aprovado ? 'Aprovado' : 'Pendente'}
                 </div>
+              </div>
+              
+              <div className="testimonial-meta">
+                <span className="email">{depoimento.email}</span>
+                {depoimento.cidade && <span className="cidade">• {depoimento.cidade}</span>}
               </div>
               
               <div className="testimonial-content">
@@ -134,7 +245,9 @@ const TestimonialList = () => {
           ))
         ) : (
           <div className="no-data">
-            Nenhum depoimento cadastrado.
+            {filter === 'todos' ? 'Nenhum depoimento cadastrado.'
+             : filter === 'pendentes' ? 'Nenhum depoimento pendente.'
+             : 'Nenhum depoimento aprovado.'}
           </div>
         )}
       </div>

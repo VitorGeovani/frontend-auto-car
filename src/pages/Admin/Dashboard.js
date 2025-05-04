@@ -18,8 +18,8 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ 
     clientes: 0, 
     estoque: 0,
-    interesses: 0
-    // depoimentos: 0
+    interesses: 0,
+    depoimentos: 0  // Descomentado esta linha
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +34,8 @@ const Dashboard = () => {
       setStats({
         clientes: res.data.clientes || 0,
         estoque: res.data.estoque || 0,
-        interesses: res.data.interesses || 0
+        interesses: res.data.interesses || 0,
+        depoimentos: res.data.depoimentos || 0  // Adicionado esta linha
       });
       setError(null);
       setLastUpdated(new Date());
@@ -124,7 +125,7 @@ const Dashboard = () => {
           <Link to="/admin/interesses">Ver detalhes</Link>
         </div>
         
-        {/* <div className="stat-card">
+        <div className="stat-card">
           <FaCommentDots className="icon" />
           <h3>Depoimentos</h3>
           {loading ? (
@@ -133,7 +134,7 @@ const Dashboard = () => {
             <p className="stat-number">{stats.depoimentos}</p>
           )}
           <Link to="/admin/depoimentos">Gerenciar</Link>
-        </div> */}
+        </div>
       </div>
 
       <div className="actions-section">
@@ -142,14 +143,14 @@ const Dashboard = () => {
           <Link to="/admin/veiculos/novo" className="action-button">
             <FaPlus /> Cadastrar Veículo
           </Link>
-          {/* <Link to="/admin/veiculos" className="action-button">
-            <FaPencilAlt /> Alterar Dados de Veículo
-          </Link> */}
           <Link to="/admin/estoque" className="action-button">
             <FaWarehouse /> Consultar Estoque
           </Link>
           <Link to="/admin/interesses" className="action-button">
             <FaBell /> Gerenciar Interesses
+          </Link>
+          <Link to="/admin/depoimentos" className="action-button">
+            <FaCommentDots /> Gerenciar Depoimentos
           </Link>
         </div>
       </div>

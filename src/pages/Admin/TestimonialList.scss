@@ -1,182 +1,215 @@
-// frontend/src/pages/Admin/TestimonialList.scss
 .testimonial-list {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  padding: 20px;
   
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    
     h1 {
-      margin-bottom: 2rem;
+      font-size: 24px;
       color: #333;
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 1rem;
     }
-  
-    .filters {
+    
+    .refresh-btn {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 15px;
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
       
-      button {
-        padding: 0.6rem 1.2rem;
-        border: 1px solid #ddd;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        
-        &.active, &:hover {
-          background: #3498db;
-          color: white;
-          border-color: #3498db;
-        }
-        
-        &.filter-pending:hover, &.filter-pending.active {
-          background: #f39c12;
-          border-color: #f39c12;
-        }
-        
-        &.filter-approved:hover, &.filter-approved.active {
-          background: #27ae60;
-          border-color: #27ae60;
-        }
+      &:hover {
+        background-color: #e0e0e0;
       }
     }
+  }
   
-    .testimonial-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 1.5rem;
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    
+    .filter-btn {
+      padding: 8px 15px;
+      background-color: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
       
-      .no-data {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 3rem;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        color: #777;
+      &:hover {
+        background-color: #e8e8e8;
+      }
+      
+      &.active {
+        background-color: #333;
+        color: white;
+        border-color: #333;
       }
     }
+  }
   
+  .testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    
     .testimonial-card {
-      background: white;
+      background-color: #fff;
+      border: 1px solid #ddd;
       border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       
       &.pending {
         border-left: 4px solid #f39c12;
       }
       
       &.approved {
-        border-left: 4px solid #27ae60;
+        border-left: 4px solid #2ecc71;
       }
       
       .testimonial-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
+        margin-bottom: 10px;
         
         .user-info {
           h3 {
-            margin: 0 0 0.25rem;
-            color: #333;
+            margin: 0 0 5px;
+            font-size: 18px;
           }
           
           .date {
-            font-size: 0.875rem;
             color: #777;
+            font-size: 12px;
           }
         }
         
         .status-badge {
-          font-size: 0.75rem;
-          font-weight: 500;
-          padding: 0.25rem 0.5rem;
-          border-radius: 100px;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: bold;
           
           .approved & {
-            background: rgba(39, 174, 96, 0.1);
-            color: #27ae60;
+            background-color: #e8f5e9;
+            color: #2e7d32;
           }
           
           .pending & {
-            background: rgba(243, 156, 18, 0.1);
-            color: #f39c12;
+            background-color: #fff3e0;
+            color: #e65100;
           }
         }
       }
       
+      .testimonial-meta {
+        margin-bottom: 10px;
+        font-size: 13px;
+        color: #666;
+      }
+      
       .testimonial-content {
-        flex: 1;
-        margin-bottom: 1rem;
-        
+        margin-bottom: 15px;
         p {
-          color: #555;
+          margin: 0;
           line-height: 1.5;
+          font-size: 14px;
         }
       }
       
       .rating {
-        margin-bottom: 1.5rem;
         color: #f39c12;
-        font-size: 1.25rem;
-        letter-spacing: 2px;
+        margin-bottom: 15px;
+        font-size: 16px;
+        letter-spacing: 3px;
       }
       
       .testimonial-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: 8px;
         
         button {
-          flex: 1;
-          display: inline-flex;
+          display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          padding: 0.6rem;
-          border: none;
+          gap: 5px;
+          padding: 6px 12px;
           border-radius: 4px;
-          font-weight: 500;
-          font-size: 0.875rem;
+          font-size: 13px;
+          border: none;
           cursor: pointer;
-          transition: background 0.3s ease;
+          transition: all 0.2s ease;
           
-          svg {
-            font-size: 0.875rem;
+          &.approve-btn {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            
+            &:hover {
+              background-color: #c8e6c9;
+            }
+          }
+          
+          &.reject-btn {
+            background-color: #ffebee;
+            color: #c62828;
+            
+            &:hover {
+              background-color: #ffcdd2;
+            }
+          }
+          
+          &.delete-btn {
+            background-color: #f5f5f5;
+            color: #333;
+            
+            &:hover {
+              background-color: #e0e0e0;
+            }
           }
         }
-        
-        .approve-btn {
-          background: #27ae60;
-          color: white;
-          
-          &:hover {
-            background: #219653;
-          }
-        }
-        
-        .reject-btn {
-          background: #f39c12;
-          color: white;
-          
-          &:hover {
-            background: #e67e22;
-          }
-        }
-        
-        .delete-btn {
-          background: #e74c3c;
-          color: white;
-          
-          &:hover {
-            background: #c0392b;
-          }
-        }
+      }
+    }
+  }
+  
+  .no-data {
+    grid-column: 1 / -1;
+    padding: 30px;
+    text-align: center;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    color: #777;
+  }
+  
+  .loading, .error-message {
+    padding: 30px;
+    text-align: center;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    color: #777;
+  }
+  
+  .error-message {
+    color: #c62828;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    
+    button {
+      padding: 8px 15px;
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: #e0e0e0;
       }
     }
   }
@@ -187,67 +220,60 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0,0,0,0.5);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     
     .delete-modal {
-      background: white;
+      background-color: white;
       border-radius: 8px;
-      padding: 2rem;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      padding: 25px;
+      width: 400px;
+      max-width: 90%;
       
       h3 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        color: #333;
+        margin-top: 0;
+        color: #c62828;
       }
       
-      p {
-        margin-bottom: 1rem;
-        
-        &.warning {
-          color: #e74c3c;
-          font-weight: 500;
-        }
+      .warning {
+        color: #c62828;
+        font-weight: bold;
       }
       
       .modal-actions {
         display: flex;
         justify-content: flex-end;
-        gap: 1rem;
-        margin-top: 2rem;
+        gap: 10px;
+        margin-top: 20px;
         
         button {
-          padding: 0.75rem 1.5rem;
+          padding: 8px 15px;
           border-radius: 4px;
-          font-weight: 500;
           cursor: pointer;
-        }
-        
-        .cancel-btn {
-          background: #f8f9fa;
-          border: 1px solid #ddd;
-          color: #555;
-          
-          &:hover {
-            background: #e9ecef;
-          }
-        }
-        
-        .confirm-btn {
-          background: #e74c3c;
           border: none;
-          color: white;
           
-          &:hover {
-            background: #c0392b;
+          &.cancel-btn {
+            background-color: #f1f1f1;
+            color: #333;
+            
+            &:hover {
+              background-color: #e0e0e0;
+            }
+          }
+          
+          &.confirm-btn {
+            background-color: #c62828;
+            color: white;
+            
+            &:hover {
+              background-color: #b71c1c;
+            }
           }
         }
       }
     }
   }
+}
