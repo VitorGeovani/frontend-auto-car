@@ -1,9 +1,11 @@
-# Auto Car - Plataforma de Venda de Veículos
+
+
+# Auto Car - Plataforma de Concessionária de Veículos
 
 **Auto Car Logo**
 
 ## 📌 Sobre o Projeto
-Auto Car é uma aplicação web moderna para uma loja de veículos, desenvolvida com React. A plataforma oferece uma experiência completa tanto para os clientes que desejam navegar pelo estoque de veículos quanto para administradores que gerenciam a loja.
+Auto Car é uma aplicação web moderna para uma concessionária de veículos, desenvolvida com React. A plataforma oferece uma experiência completa tanto para os clientes que desejam navegar pelo estoque de veículos quanto para administradores que gerenciam a loja.
 
 A aplicação combina uma interface de usuário atraente para os clientes navegarem pelo estoque e uma robusta área administrativa para gerenciamento completo da concessionária.
 
@@ -38,29 +40,29 @@ A aplicação combina uma interface de usuário atraente para os clientes navega
 ## 📦 Estrutura do Projeto
 ```
 frontend/
-├── public/ # Arquivos públicos estáticos
-├── src/ # Código fonte principal
-│ ├── assets/ # Recursos estáticos (imagens, etc)
-│ ├── components/ # Componentes React reutilizáveis
-│ │ ├── About/ # Seção Sobre nós da página inicial
-│ │ ├── Cars/ # Componente de exibição de carros
-│ │ ├── ClienteLogin/ # Formulário de login para clientes
-│ │ ├── Contact/ # Seção de contato com mapa interativo
-│ │ ├── Footer/ # Rodapé do site
-│ │ ├── Header/ # Cabeçalho do site com navegação
-│ │ └── ... # Outros componentes
-│ ├── layouts/ # Layouts estruturais da aplicação
-│ │ └── AdminLayout.js # Layout para área administrativa
-│ ├── pages/ # Páginas principais da aplicação
-│ │ ├── Admin/ # Páginas administrativas
-│ │ ├── Estoque/ # Página de catálogo de veículos
-│ │ ├── Interesse/ # Página de demonstração de interesse
-│ │ ├── VeiculoDetalhes/# Página de detalhes do veículo
-│ │ └── ... # Outras páginas
-│ ├── services/ # Serviços para comunicação com a API
-│ ├── App.js # Componente principal com rotas
-│ └── index.js # Ponto de entrada da aplicação
-└── package.json # Dependências e scripts
+├── public/                 # Arquivos públicos estáticos
+├── src/                    # Código fonte principal
+│   ├── assets/             # Recursos estáticos (imagens, etc)
+│   ├── components/         # Componentes React reutilizáveis
+│   │   ├── About/          # Seção Sobre nós da página inicial
+│   │   ├── Cars/           # Componente de exibição de carros
+│   │   ├── ClienteLogin/   # Formulário de login para clientes
+│   │   ├── Contact/        # Seção de contato com mapa interativo
+│   │   ├── Footer/         # Rodapé do site
+│   │   ├── Header/         # Cabeçalho do site com navegação
+│   │   └── ...             # Outros componentes
+│   ├── layouts/            # Layouts estruturais da aplicação
+│   │   └── AdminLayout.js  # Layout para área administrativa
+│   ├── pages/              # Páginas principais da aplicação
+│   │   ├── Admin/          # Páginas administrativas
+│   │   ├── Estoque/        # Página de catálogo de veículos
+│   │   ├── Interesse/      # Página de demonstração de interesse
+│   │   ├── VeiculoDetalhes/# Página de detalhes do veículo
+│   │   └── ...             # Outras páginas
+│   ├── services/           # Serviços para comunicação com a API
+│   ├── App.js              # Componente principal com rotas
+│   └── index.js            # Ponto de entrada da aplicação
+└── package.json            # Dependências e scripts
 
 ```
 
