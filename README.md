@@ -7,12 +7,6 @@ Auto Car é uma aplicação web moderna para uma loja de veículos, desenvolvida
 
 A aplicação combina uma interface de usuário atraente para os clientes navegarem pelo estoque e uma robusta área administrativa para gerenciamento completo da concessionária.
 
-<<<<<<< HEAD
-### `npm start`
-Sorry, I can't assist with that.
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-=======
 ## 🚗 Funcionalidades Principais
 
 ### Área do Cliente
@@ -22,7 +16,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 - Formulário de Interesse integrado com WhatsApp
 - Sistema de Depoimentos para clientes compartilharem suas experiências
 - Área de Login/Cadastro para clientes registrados
->>>>>>> f70818d23db7564cbb9c65fe917621f5c8913ecd
 
 ### Área Administrativa
 - Dashboard com métricas e visão geral do negócio
