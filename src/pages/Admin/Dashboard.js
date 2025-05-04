@@ -9,74 +9,131 @@ import {
   FaPlus, 
   FaPencilAlt, 
   FaWarehouse,
-  FaBell
+  FaBell,
+  FaSync,
+  FaExclamationTriangle
 } from 'react-icons/fa';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({ 
     clientes: 0, 
-    agendamentos: 0, 
-    vendas: 0,
-    veiculos: 0,
-    depoimentos: 0,
+    estoque: 0,
     interesses: 0
+    // depoimentos: 0
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      console.log('Solicitando dados do dashboard...');
+      const res = await api.get('/admin/dashboard');
+      console.log('Dados recebidos:', res.data);
+      setStats({
+        clientes: res.data.clientes || 0,
+        estoque: res.data.estoque || 0,
+        interesses: res.data.interesses || 0
+      });
+      setError(null);
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error("Erro ao carregar dados do dashboard:", err);
+      setError(`Não foi possível carregar os dados: ${err.message || 'Erro desconhecido'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        const res = await api.get('/admin/dashboard');
-        setStats(res.data);
-        setError(null);
-      } catch (err) {
-        console.error("Erro ao carregar dados do dashboard:", err);
-        setError("Não foi possível carregar os dados do dashboard");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
   }, []);
 
-  if (loading) return <div className="loading">Carregando dados do dashboard...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  const handleRefresh = () => {
+    fetchDashboardData();
+  };
+
+  const formatDateTime = (date) => {
+    if (!date) return '';
+    return new Intl.DateTimeFormat('pt-BR', { 
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
 
   return (
     <div className="admin-dashboard">
-      <h1>Painel Administrativo</h1>
+      <div className="dashboard-header">
+        <h1>Painel Administrativo</h1>
+        {lastUpdated && (
+          <div className="last-update">
+            Última atualização: {formatDateTime(lastUpdated)}
+            <button 
+              className="refresh-btn" 
+              onClick={handleRefresh} 
+              disabled={loading}
+            >
+              <FaSync className={loading ? 'rotating' : ''} /> Atualizar
+            </button>
+          </div>
+        )}
+      </div>
+
+      {error && (
+        <div className="error-message">
+          <FaExclamationTriangle /> {error}
+          <button className="retry-btn" onClick={handleRefresh}>Tentar novamente</button>
+        </div>
+      )}
       
       <div className="stats-grid">
         <div className="stat-card">
           <FaCarSide className="icon" />
           <h3>Veículos em Estoque</h3>
-          <p className="stat-number">{stats.veiculos}</p>
+          {loading ? (
+            <div className="stat-loading">Carregando...</div>
+          ) : (
+            <p className="stat-number">{stats.estoque}</p>
+          )}
           <Link to="/admin/estoque">Ver detalhes</Link>
         </div>
 
         <div className="stat-card">
           <FaUsers className="icon" />
           <h3>Clientes Cadastrados</h3>
-          <p className="stat-number">{stats.clientes}</p>
+          {loading ? (
+            <div className="stat-loading">Carregando...</div>
+          ) : (
+            <p className="stat-number">{stats.clientes}</p>
+          )}
           <Link to="/admin/usuarios">Ver todos</Link>
         </div>
 
         <div className="stat-card">
-          <FaCommentDots className="icon" />
-          <h3>Depoimentos</h3>
-          <p className="stat-number">{stats.depoimentos}</p>
-          <Link to="/admin/depoimentos">Gerenciar</Link>
-        </div>
-        
-        <div className="stat-card">
           <FaBell className="icon" />
           <h3>Interesses</h3>
-          <p className="stat-number">{stats.interesses || 0}</p>
+          {loading ? (
+            <div className="stat-loading">Carregando...</div>
+          ) : (
+            <p className="stat-number">{stats.interesses}</p>
+          )}
           <Link to="/admin/interesses">Ver detalhes</Link>
         </div>
+        
+        {/* <div className="stat-card">
+          <FaCommentDots className="icon" />
+          <h3>Depoimentos</h3>
+          {loading ? (
+            <div className="stat-loading">Carregando...</div>
+          ) : (
+            <p className="stat-number">{stats.depoimentos}</p>
+          )}
+          <Link to="/admin/depoimentos">Gerenciar</Link>
+        </div> */}
       </div>
 
       <div className="actions-section">
@@ -85,9 +142,9 @@ const Dashboard = () => {
           <Link to="/admin/veiculos/novo" className="action-button">
             <FaPlus /> Cadastrar Veículo
           </Link>
-          <Link to="/admin/veiculos" className="action-button">
+          {/* <Link to="/admin/veiculos" className="action-button">
             <FaPencilAlt /> Alterar Dados de Veículo
-          </Link>
+          </Link> */}
           <Link to="/admin/estoque" className="action-button">
             <FaWarehouse /> Consultar Estoque
           </Link>

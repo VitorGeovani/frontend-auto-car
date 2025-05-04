@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert, Card } from 'react-bootstrap';
 import { FaWhatsapp, FaCheckCircle, FaUser, FaEnvelope, 
-         FaPhone, FaCommentAlt, FaPaperPlane, FaExclamationTriangle } from 'react-icons/fa';
+         FaPhone, FaCommentAlt, FaPaperPlane, FaExclamationTriangle, FaLock } from 'react-icons/fa';
 import { enviarInteresse } from '../../services/interesseService';
 import './FormularioInteresse.scss';
 
@@ -16,6 +16,32 @@ const FormularioInteresse = ({ veiculo }) => {
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
   const [erro, setErro] = useState(null);
+  const [usuarioLogado, setUsuarioLogado] = useState(false);
+  
+  // Efeito para preencher automaticamente os dados do usuário logado
+  useEffect(() => {
+    try {
+      const userDataString = localStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        
+        // Verifica se temos os dados do usuário e preenche o formulário
+        if (userData) {
+          setFormData(prevData => ({
+            ...prevData,
+            nome: userData.nome || prevData.nome,
+            email: userData.email || prevData.email,
+            telefone: userData.telefone || prevData.telefone
+          }));
+          
+          // Indica que encontramos um usuário logado para feedback visual
+          setUsuarioLogado(true);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dados do usuário:", error);
+    }
+  }, []);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,12 +111,25 @@ const FormularioInteresse = ({ veiculo }) => {
   return (
     <Card className="interesse-card">
       <Card.Header>
-        <h3><FaPaperPlane className="me-2" /> Tenho interesse neste veículo</h3>
+        <h3>
+          <FaPaperPlane className="me-2" /> Tenho interesse neste veículo
+          {usuarioLogado && (
+            <span className="ms-2 badge bg-success">
+              <FaLock className="me-1" /> Conta conectada
+            </span>
+          )}
+        </h3>
       </Card.Header>
       <Card.Body>
         {erro && (
           <Alert variant="danger" className="alert-compact">
             <FaExclamationTriangle className="me-2" /> {erro}
+          </Alert>
+        )}
+        
+        {usuarioLogado && (
+          <Alert variant="info" className="alert-compact">
+            <FaUser className="me-2" /> Seus dados foram preenchidos automaticamente!
           </Alert>
         )}
         

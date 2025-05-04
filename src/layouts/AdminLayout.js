@@ -52,11 +52,11 @@ const AdminLayout = () => {
                 <FaUsers /> <span>Usuários</span>
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to="/admin/depoimentos" className="nav-item">
                 <FaComments /> <span>Depoimentos</span>
               </NavLink>
-            </li>
+            </li> */}
             {/* Novo item de menu para Interesses */}
             <li>
               <NavLink to="/admin/interesses" className="nav-item">

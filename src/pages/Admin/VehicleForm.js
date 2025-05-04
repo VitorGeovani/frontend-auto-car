@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import api from "../../services/api";
+import api, { clearCache } from "../../services/api";
 import {
   Container,
   Row,
@@ -27,28 +27,33 @@ const VehicleForm = () => {
   const [imagensPreview, setImagensPreview] = useState([]);
   const [imagensAtuais, setImagensAtuais] = useState([]);
 
-  // Modifique esta função para garantir formatação correta dos caminhos
-const formatImageUrl = (url) => {
-  if (!url) return '';
-  
-  // Se a URL já estiver completa com o protocolo, retorna como está
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-  
-  // Verificar formatos comuns e padronizar
-  if (url.includes('/uploads/carros/')) {
-    // Extrair apenas o nome do arquivo se for um caminho completo
-    const fileName = url.split('/').pop();
-    return `${api.defaults.baseURL}/uploads/carros/${fileName}`;
-  }
-  
-  // Se a URL começar com / (caminho absoluto), retira a primeira barra
-  const cleanPath = url.startsWith('/') ? url.substring(1) : url;
-  
-  // Combina com a URL base da API
-  return `${api.defaults.baseURL}/${cleanPath}`;
-};
+  // Função melhorada para formatação de URLs de imagens
+  const formatImageUrl = (url) => {
+    if (!url) return '';
+    
+    // Se a URL já estiver completa com o protocolo, retorna como está
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // Verificar formatos comuns e padronizar
+    if (url.includes('/uploads/carros/')) {
+      // Extrair apenas o nome do arquivo se for um caminho completo
+      const fileName = url.split('/').pop();
+      return `${api.defaults.baseURL}/uploads/carros/${fileName}`;
+    }
+    
+    // Se for apenas o nome do arquivo
+    if (!url.includes('/')) {
+      return `${api.defaults.baseURL}/uploads/carros/${url}`;
+    }
+    
+    // Se a URL começar com / (caminho absoluto), retira a primeira barra
+    const cleanPath = url.startsWith('/') ? url.substring(1) : url;
+    
+    // Combina com a URL base da API
+    return `${api.defaults.baseURL}/${cleanPath}`;
+  };
 
   // Estado para dados do veículo
   const [formData, setFormData] = useState({
@@ -63,6 +68,7 @@ const formatImageUrl = (url) => {
     combustivel: "gasolina",
     opcionais: "",
     categoria_id: "",
+    ativo: true, // Importante para garantir que o veículo apareça no estoque
   });
 
   // Estado para dados de estoque
@@ -70,6 +76,24 @@ const formatImageUrl = (url) => {
     quantidade: 1,
     localizacao: "",
   });
+
+  // Função para invalidar o cache do navegador para uma rota específica
+  const invalidateCache = async (route) => {
+    try {
+      await api.get(route, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'If-Modified-Since': '0'
+        },
+        params: { _nocache: new Date().getTime() }
+      });
+      console.log(`Cache invalidado para: ${route}`);
+    } catch (error) {
+      console.error(`Erro ao invalidar cache para ${route}:`, error);
+    }
+  };
 
   // Buscar categorias ao montar o componente
   useEffect(() => {
@@ -108,7 +132,8 @@ const formatImageUrl = (url) => {
       const fetchCarro = async () => {
         try {
           setLoading(true);
-          const response = await api.get(`/carros/${id}`);
+          // Adicionado timestamp para evitar cache
+          const response = await api.get(`/carros/${id}?_nocache=${new Date().getTime()}`);
           console.log("Dados do veículo recebidos:", response.data);
           console.log("Imagens recebidas do servidor:", response.data.imagens);
 
@@ -125,15 +150,24 @@ const formatImageUrl = (url) => {
               combustivel: response.data.combustivel || "gasolina",
               opcionais: response.data.opcionais || "",
               categoria_id: response.data.categoria_id || "",
+              ativo: response.data.ativo !== false, // Garantir que o campo ativo exista
             });
 
-            if (response.data.imagens && Array.isArray(response.data.imagens)) {
-              setImagensAtuais(response.data.imagens);
+            // Processamento melhorado para lidar com diferentes formatos de imagens
+            if (response.data.imagens) {
+              let imagens = response.data.imagens;
+              
+              // Assegurar que temos um array, mesmo que a API retorne string ou objeto
+              if (typeof imagens === 'string') {
+                imagens = [imagens]; // Converter string única para array
+              } else if (!Array.isArray(imagens) && imagens !== null) {
+                // Tentar extrair as imagens de um objeto, se aplicável
+                imagens = Object.values(imagens).filter(img => img);
+              }
+              
+              setImagensAtuais(imagens || []);
             } else {
-              console.warn(
-                "Imagens não disponíveis ou não são um array:",
-                response.data.imagens
-              );
+              console.warn("Imagens não disponíveis");
               setImagensAtuais([]);
             }
           } else {
@@ -142,7 +176,7 @@ const formatImageUrl = (url) => {
 
           // Buscar dados de estoque
           try {
-            const estoqueResponse = await api.get("/estoque");
+            const estoqueResponse = await api.get(`/estoque?_nocache=${new Date().getTime()}`);
             console.log("Dados do estoque recebidos:", estoqueResponse.data);
 
             if (Array.isArray(estoqueResponse.data)) {
@@ -211,18 +245,35 @@ const formatImageUrl = (url) => {
     }
   };
 
+  // Função melhorada para remover imagem
   const removerImagem = async (src, index) => {
     try {
       console.log('Removendo imagem:', src);
       
-      // Se a imagem tiver um ID numérico na URL
+      let nomeArquivo;
+      
+      // Melhor lógica para extrair o nome do arquivo ou ID
       if (src.includes('/uploads/carros/')) {
         // Extrair apenas o nome do arquivo da URL completa
-        const nomeArquivo = src.split('/').pop();
+        nomeArquivo = src.split('/').pop();
         console.log('Nome do arquivo extraído:', nomeArquivo);
         
-        // Tentar excluir pelo nome do arquivo
-        await api.delete(`/imagens/arquivo/${encodeURIComponent(nomeArquivo)}`);
+        try {
+          // Tentar excluir pelo nome do arquivo
+          await api.delete(`/imagens/arquivo/${encodeURIComponent(nomeArquivo)}`);
+        } catch (deleteError) {
+          console.warn('Falha ao deletar pelo arquivo, tentando alternativas:', deleteError);
+          
+          // Tentar rota alternativa
+          try {
+            if (id) {
+              await api.delete(`/imagens/carro/${id}/${encodeURIComponent(nomeArquivo)}`);
+            }
+          } catch (altError) {
+            console.error('Todas as tentativas de exclusão falharam:', altError);
+            // Continuar mesmo se falhar - apenas atualizamos a UI
+          }
+        }
       } else {
         // Se for uma URL com ID direto (formato antigo)
         const idMatch = src.match(/\/imagens\/(\d+)/);
@@ -231,11 +282,18 @@ const formatImageUrl = (url) => {
           console.log('ID da imagem extraído:', imagemId);
           await api.delete(`/imagens/${imagemId}`);
         } else {
-          throw new Error('Formato de URL de imagem não reconhecido');
+          // Para outros formatos, tentar deduzir o nome do arquivo
+          nomeArquivo = src.split('/').pop();
+          try {
+            await api.delete(`/imagens/arquivo/${encodeURIComponent(nomeArquivo)}`);
+          } catch (error) {
+            console.warn('Não foi possível remover imagem do servidor:', error);
+            // Continuar mesmo se falhar
+          }
         }
       }
       
-      // Atualizar o estado local
+      // Sempre atualizar o estado local, mesmo que a exclusão do servidor falhe
       const novasImagensAtuais = [...imagensAtuais];
       novasImagensAtuais.splice(index, 1);
       setImagensAtuais(novasImagensAtuais);
@@ -244,7 +302,13 @@ const formatImageUrl = (url) => {
     } catch (error) {
       console.error('Erro ao remover imagem:', error);
       console.log('URL da imagem que causou erro:', src);
-      toast.error('Erro ao remover imagem. Verifique o console para mais detalhes.');
+      
+      // Ainda atualizamos a UI, mesmo que a exclusão do servidor falhe
+      const novasImagensAtuais = [...imagensAtuais];
+      novasImagensAtuais.splice(index, 1);
+      setImagensAtuais(novasImagensAtuais);
+      
+      toast.warning('A imagem foi removida da visualização, mas pode não ter sido excluída do servidor.');
     }
   };
 
@@ -263,16 +327,19 @@ const formatImageUrl = (url) => {
       // Validação dos campos obrigatórios
       if (!formData.modelo.trim()) {
         toast.error("O modelo do veículo é obrigatório");
+        setLoading(false);
         return;
       }
 
       if (!formData.marca.trim()) {
         toast.error("A marca do veículo é obrigatória");
+        setLoading(false);
         return;
       }
 
       if (!formData.preco) {
         toast.error("O preço do veículo é obrigatório");
+        setLoading(false);
         return;
       }
 
@@ -291,6 +358,7 @@ const formatImageUrl = (url) => {
         categoria_id: formData.categoria_id
           ? parseInt(formData.categoria_id)
           : null,
+        ativo: true, // Garantir que o veículo esteja ativo
       };
 
       let carroId;
@@ -298,14 +366,44 @@ const formatImageUrl = (url) => {
       console.log("Enviando dados do carro:", carroData);
 
       if (id) {
-        // Atualizar carro existente
-        const response = await api.put(`/carros/${id}`, carroData);
-        console.log("Resposta da atualização do carro:", response.data);
+        // LÓGICA MELHORADA PARA EDIÇÃO DE CARRO
+        console.log("INICIANDO ATUALIZAÇÃO DO CARRO ID:", id);
+        console.log("DADOS ENVIADOS PARA ATUALIZAÇÃO:", JSON.stringify(carroData));
+        
+        // Limpar cache antes da atualização
+        clearCache();
+        
+        // Garantir que estamos usando a requisição correta com cabeçalhos apropriados
+        const response = await api.put(`/carros/${id}?_nocache=${new Date().getTime()}`, carroData, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log("RESPOSTA DA ATUALIZAÇÃO:", response.data);
         carroId = id;
+        
+        // Aguardar um tempo para que a atualização seja processada completamente
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Forçar nova consulta para verificar se a atualização foi aplicada
+        const verificacao = await api.get(`/carros/${id}?_nocache=${new Date().getTime()}`, {
+          headers: { 'Cache-Control': 'no-cache' }
+        });
+        
+        console.log("VERIFICAÇÃO PÓS-ATUALIZAÇÃO:", verificacao.data);
+        
+        if (verificacao.data.modelo !== carroData.modelo) {
+          console.warn(`ALERTA: Os dados verificados após atualização não correspondem aos enviados! 
+                       Enviado: ${carroData.modelo}, recebido: ${verificacao.data.modelo}`);
+        }
 
         try {
           // Atualizar estoque
-          const estoqueResponse = await api.get("/estoque");
+          const estoqueResponse = await api.get(`/estoque?_nocache=${new Date().getTime()}`);
 
           if (Array.isArray(estoqueResponse.data)) {
             const estoqueItem = estoqueResponse.data.find(
@@ -315,10 +413,13 @@ const formatImageUrl = (url) => {
             const estoquePayload = {
               quantidade: parseInt(estoqueData.quantidade) || 1,
               localizacao: estoqueData.localizacao || "",
+              carro_id: parseInt(id), // Garantir que o ID do carro esteja no payload
             };
 
             if (estoqueItem) {
-              await api.put(`/estoque/${estoqueItem.id}`, estoquePayload);
+              await api.put(`/estoque/${estoqueItem.id}?_nocache=${new Date().getTime()}`, estoquePayload, {
+                headers: { 'Cache-Control': 'no-cache' }
+              });
               console.log("Estoque atualizado com sucesso");
             } else {
               // Criar novo item de estoque
@@ -327,7 +428,9 @@ const formatImageUrl = (url) => {
                 carro_id: parseInt(id),
               };
 
-              await api.post("/estoque", novoEstoquePayload);
+              await api.post("/estoque?_nocache=" + new Date().getTime(), novoEstoquePayload, {
+                headers: { 'Cache-Control': 'no-cache' }
+              });
               console.log("Novo item de estoque criado");
             }
           } else {
@@ -342,7 +445,7 @@ const formatImageUrl = (url) => {
       } else {
         // Criar novo carro
         try {
-          const response = await api.post("/carros", carroData);
+          const response = await api.post("/carros?_nocache=" + new Date().getTime(), carroData);
           console.log("Resposta da criação do carro:", response.data);
 
           // Verificar se o ID do carro foi retornado
@@ -360,7 +463,7 @@ const formatImageUrl = (url) => {
           };
 
           console.log("Enviando dados para estoque:", estoquePayload);
-          const estoqueResponse = await api.post("/estoque", estoquePayload);
+          const estoqueResponse = await api.post("/estoque?_nocache=" + new Date().getTime(), estoquePayload);
           console.log("Resposta do estoque:", estoqueResponse.data);
         } catch (error) {
           console.error("Erro ao criar carro ou adicionar ao estoque:", error);
@@ -371,19 +474,6 @@ const formatImageUrl = (url) => {
       // Upload de imagens se houver novas
       if (imagens.length > 0 && carroId) {
         try {
-          // Se estiver editando e tiver novas imagens, primeiro excluir as antigas
-          if (id) {
-            console.log("Excluindo imagens antigas do carro ID:", carroId);
-            try {
-              // Chamar API para excluir todas as imagens do carro
-              await api.delete(`/imagens/carro/${carroId}`);
-              console.log("Imagens antigas excluídas com sucesso");
-            } catch (deleteError) {
-              console.error("Erro ao excluir imagens antigas:", deleteError);
-              // Continua mesmo se falhar a exclusão
-            }
-          }
-
           // Fazer upload das novas imagens
           console.log("Fazendo upload de", imagens.length, "novas imagens");
           const formData = new FormData();
@@ -391,21 +481,34 @@ const formatImageUrl = (url) => {
             formData.append("imagens", img);
           });
 
-          await api.post(`/imagens/carro/${carroId}`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
+          // Tentar diferentes endpoints para upload de imagens
+          try {
+            await api.post(`/upload/carros/${carroId}?_nocache=${new Date().getTime()}`, formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
+          } catch (err1) {
+            console.warn("Falha no primeiro endpoint de upload, tentando alternativa:", err1);
+            
+            try {
+              await api.post(`/imagens/carro/${carroId}?_nocache=${new Date().getTime()}`, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              });
+            } catch (err2) {
+              console.warn("Falha no segundo endpoint, tentando terceira alternativa:", err2);
+              
+              await api.post(`/imagens/${carroId}?_nocache=${new Date().getTime()}`, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              });
+            }
+          }
 
           console.log("Imagens enviadas com sucesso");
-
-          // Buscar dados atualizados do veículo para mostrar as novas imagens
-          const veiculoAtualizado = await api.get(`/carros/${carroId}`);
-          if (veiculoAtualizado.data && veiculoAtualizado.data.imagens) {
-            setImagensAtuais(veiculoAtualizado.data.imagens);
-            setImagens([]);
-            setImagensPreview([]);
-          }
         } catch (imagemError) {
           console.error("Erro ao processar imagens:", imagemError);
           toast.warning(
@@ -416,16 +519,39 @@ const formatImageUrl = (url) => {
 
       toast.success("Veículo salvo com sucesso!");
 
-      // Se estiver editando, recarregar os dados antes de navegar
-      if (id) {
-        await recarregarDados(id);
+      // MODIFICAÇÕES PARA GARANTIR QUE OS DADOS SEJAM ATUALIZADOS CORRETAMENTE
+      try {
+        // Limpar cache de forma mais agressiva
+        clearCache();
+        sessionStorage.clear(); // Limpar qualquer cache na sessão
+        
+        // Forçar revalidação de todas as rotas relevantes
+        await Promise.all([
+          invalidateCache('/carros'),
+          invalidateCache('/estoque'),
+          invalidateCache('/admin/dashboard'),
+          invalidateCache('/api/carros'),
+          invalidateCache('/api/veiculos'),
+          invalidateCache('/api/estoque')
+        ]);
+        
+        // Se estiver editando, recarregar os dados antes de navegar
+        if (id) {
+          await recarregarDados(id);
+        }
+        
+        // Usar navegação direta do navegador para garantir recarregamento completo
+        setTimeout(() => {
+          window.location.href = '/admin/estoque';
+        }, 1500);
+        
+      } catch (cacheError) {
+        console.error("Erro ao limpar cache:", cacheError);
+        // Mesmo com erro, forçar recarga completa da página
+        setTimeout(() => {
+          window.location.href = '/admin/estoque';
+        }, 1500);
       }
-
-      // Aguardar um curto período para garantir que os dados
-      // sejam atualizados antes de redirecionar
-      setTimeout(() => {
-        navigate("/admin/estoque");
-      }, 1000);
       
     } catch (error) {
       console.error("Erro ao salvar veículo:", error);
@@ -445,7 +571,9 @@ const formatImageUrl = (url) => {
   const recarregarDados = async (carroId) => {
     try {
       // Buscar dados atualizados do veículo
-      const response = await api.get(`/carros/${carroId}`);
+      const response = await api.get(`/carros/${carroId}?_nocache=${new Date().getTime()}`, {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
 
       if (response.data) {
         setFormData({
@@ -460,10 +588,20 @@ const formatImageUrl = (url) => {
           combustivel: response.data.combustivel || "gasolina",
           opcionais: response.data.opcionais || "",
           categoria_id: response.data.categoria_id || "",
+          ativo: response.data.ativo !== false,
         });
 
-        if (response.data.imagens && Array.isArray(response.data.imagens)) {
-          setImagensAtuais(response.data.imagens);
+        // Processamento de imagens aqui também
+        if (response.data.imagens) {
+          let imagens = response.data.imagens;
+          
+          if (typeof imagens === 'string') {
+            imagens = [imagens];
+          } else if (!Array.isArray(imagens) && imagens !== null) {
+            imagens = Object.values(imagens).filter(img => img);
+          }
+          
+          setImagensAtuais(imagens || []);
         }
 
         return true;
@@ -742,6 +880,10 @@ const formatImageUrl = (url) => {
                           alt={`Imagem ${index + 1}`}
                           thumbnail
                           width={150}
+                          onError={(e) => {
+                            console.warn(`Erro ao carregar imagem: ${src}`);
+                            e.target.src = 'https://via.placeholder.com/150?text=Sem+imagem';
+                          }}
                         />
                         <Button
                           variant="danger"
