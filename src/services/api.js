@@ -24,13 +24,21 @@ const clearApiCache = () => {
     'carros_cache', 'estoque_cache', 'veiculos_cache', 
     'dashboard_cache', 'categorias_cache', 'depoimentos_cache',
     'carros_data', 'estoque_data', 'veiculos_data',
-    'dashboard_data', 'categorias_data', 'depoimentos_data'
+    'dashboard_data', 'categorias_data', 'depoimentos_data',
+    'cache_timestamp', 'last_carros_data', 'last_update',
+    'carros_lista', 'ultimas_consultas'
   ];
   
   // Limpar todas as chaves conhecidas
   cacheKeys.forEach(key => {
     localStorage.removeItem(key);
     sessionStorage.removeItem(key);
+    
+    // Tentar também variações com prefixo/sufixo
+    localStorage.removeItem(`${key}_list`);
+    sessionStorage.removeItem(`${key}_list`);
+    localStorage.removeItem(`${key}_data`);
+    sessionStorage.removeItem(`${key}_data`);
   });
   
   // Limpar chaves que sigam padrões comuns de cache
@@ -114,14 +122,18 @@ api.interceptors.request.use(
         'If-Modified-Since': '0'
       };
       
-      // Para operações de modificação, limpar cache global primeiro
+      // Para métodos PUT e POST que atualizam dados, limpar cache global primeiro
       if (config.method === 'put' || config.method === 'post' || config.method === 'delete') {
-        clearApiCache(); // Agora preserva tokens
+        // Limpar cache antes da operação
+        if (config.url.includes('/carros') || config.url.includes('/estoque') || config.url.includes('/veiculos')) {
+          clearApiCache(); // Agora preserva tokens
+        }
       }
       
       // Adicionar timestamp para garantir URLs únicas
+      const timestamp = new Date().getTime();
       const separator = config.url.includes('?') ? '&' : '?';
-      config.url = `${config.url}${separator}_nocache=${new Date().getTime()}`;
+      config.url = `${config.url}${separator}_nocache=${timestamp}`;
     }
     
     return config;
@@ -145,18 +157,61 @@ api.interceptors.response.use(
       clearApiCache(); // Agora preserva tokens
       
       // Para modificações em carros ou estoque, revalidar dados relacionados
-      if (response.config.url.includes('/carros') || response.config.url.includes('/estoque')) {
+      if (response.config.url.includes('/carros') || response.config.url.includes('/estoque') || 
+          response.config.url.includes('/veiculos')) {
         console.log('Operação de veículo detectada - atualizando cache');
         
-        // Forçar recarregamento de dados relacionados
-        setTimeout(() => {
-          // Recarregar listagens principais
-          api.get('/carros?_nocache=' + new Date().getTime())
-            .catch(e => console.warn('Falha ao revalidar lista de carros:', e));
-            
-          api.get('/estoque?_nocache=' + new Date().getTime())
-            .catch(e => console.warn('Falha ao revalidar estoque:', e));
-        }, 500);
+        // CORRIGIDO: Forçar recarregamento de dados relacionados com retentativas
+        const revalidateRoute = async (route) => {
+          const timestamp = new Date().getTime();
+          const maxRetries = 3;
+          let attempts = 0;
+          
+          while (attempts < maxRetries) {
+            try {
+              // CORREÇÃO: Garantir formato correto da rota
+              const normalizedRoute = route.startsWith('/') ? route : `/${route}`;
+              
+              // CORREÇÃO: Usar params para adicionar query parameters em vez de concatenação direta
+              await api.get(normalizedRoute, {
+                params: { _forcereload: timestamp + attempts },
+                headers: {
+                  'Cache-Control': 'no-cache, no-store, must-revalidate',
+                  'Pragma': 'no-cache',
+                  'Expires': '0'
+                }
+              });
+              
+              console.log(`Rota ${normalizedRoute} revalidada com sucesso!`);
+              return;
+            } catch (error) {
+              console.warn(`Tentativa ${attempts + 1} falhou para ${route}:`, error);
+              
+              // CORREÇÃO: Capturar valor atual de attempts antes de incrementar
+              const currentAttempt = attempts;
+              attempts++;
+              
+              // CORREÇÃO: Usar o valor capturado para evitar o problema de closure
+              await new Promise(resolve => setTimeout(resolve, 300 * currentAttempt));
+            }
+          }
+          console.error(`Falha ao revalidar ${route} após ${maxRetries} tentativas`);
+        };
+
+        // CORREÇÃO: Usar funções anônimas completas para evitar problemas de contexto
+        setTimeout(() => { revalidateRoute('/carros'); }, 200);
+        setTimeout(() => { revalidateRoute('/estoque'); }, 500);
+        setTimeout(() => { revalidateRoute('/veiculos'); }, 800);
+        
+        // Se tiver ID de carro específico na URL, revalidar esse carro também
+        const carroIdMatch = response.config.url.match(/\/carros\/(\d+)/);
+        if (carroIdMatch && carroIdMatch[1]) {
+          const carroId = carroIdMatch[1];
+          
+          // CORREÇÃO: Usar funções anônimas completas
+          setTimeout(() => { revalidateRoute(`/carros/${carroId}`); }, 1000);
+          setTimeout(() => { revalidateRoute(`/veiculos/${carroId}`); }, 1200);
+        }
       }
       
       // Para operações de depoimentos, revalidar dados
@@ -166,13 +221,19 @@ api.interceptors.response.use(
         // Forçar recarregamento de dados relacionados
         setTimeout(() => {
           // Recarregar depoimentos públicos para atualização da página inicial
-          api.get('/depoimentos?_nocache=' + new Date().getTime())
+          api.get('/depoimentos', {
+            params: { _nocache: new Date().getTime() },
+            headers: { 'Cache-Control': 'no-cache' }
+          })
             .catch(e => console.warn('Falha ao revalidar lista de depoimentos:', e));
             
           // Se for uma rota admin, atualizar também os depoimentos do admin
           if (response.config.url.includes('/admin') || 
               localStorage.getItem('adminToken')) {
-            api.get('/depoimentos/admin?_nocache=' + new Date().getTime())
+            api.get('/depoimentos/admin', {
+              params: { _nocache: new Date().getTime() },
+              headers: { 'Cache-Control': 'no-cache' }
+            })
               .catch(e => console.warn('Falha ao revalidar lista de depoimentos admin:', e));
           }
         }, 500);

@@ -60,9 +60,8 @@ function App() {
           path="/estoque"
           element={
             <>
-              <Header />
               <Estoque />
-              <Footer />
+              
             </>
           }
         />
@@ -72,9 +71,8 @@ function App() {
           path="/veiculo/:id" 
           element={
             <>
-              <Header />
               <VeiculoDetalhes />
-              <Footer />
+              
             </>
           }
         />
@@ -83,9 +81,8 @@ function App() {
           path="/interesse/:id" 
           element={
             <>
-              <Header />
               <Interesse />
-              <Footer />
+              
             </>
           }
         />

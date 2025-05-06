@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import api, { clearCache } from "../../services/api";
@@ -45,7 +45,7 @@ const VehicleForm = () => {
   // Estado para dados de estoque
   const [estoqueData, setEstoqueData] = useState({
     quantidade: 1,
-    localizacao: "",
+    localizacao: "Matriz",
   });
 
   // Função melhorada para formatação de URLs de imagens
@@ -77,7 +77,7 @@ const VehicleForm = () => {
   };
 
   // Função para limpar caches preservando tokens de autenticação
-  const limparCaches = () => {
+  const limparCaches = useCallback(() => {
     console.log('Limpando caches da aplicação...');
     
     // IMPORTANTE: Salvar todos os tokens antes de limpar
@@ -89,16 +89,32 @@ const VehicleForm = () => {
     // Usar a função importada do serviço API
     clearCache();
     
-    // Remover manualmente chaves específicas
+    // Remover manualmente chaves específicas mais abrangentes
     const keysToRemove = [
       'carros_cache', 'estoque_cache', 'veiculos_cache',
-      'carros_data', 'estoque_data', 'veiculos_data'
+      'carros_data', 'estoque_data', 'veiculos_data',
+      'cache_timestamp', 'last_carros_data', 'last_update',
+      'carros_lista', 'ultimas_consultas'
     ];
     
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
       sessionStorage.removeItem(key);
+      
+      // Tentar também variações com prefixo/sufixo
+      localStorage.removeItem(`${key}_list`);
+      sessionStorage.removeItem(`${key}_list`);
+      localStorage.removeItem(`${key}_data`);
+      sessionStorage.removeItem(`${key}_data`);
     });
+    
+    // Limpar também itens relacionados ao veículo específico sendo editado
+    if (id) {
+      localStorage.removeItem(`carro_${id}`);
+      sessionStorage.removeItem(`carro_${id}`);
+      localStorage.removeItem(`veiculo_${id}`);
+      sessionStorage.removeItem(`veiculo_${id}`);
+    }
     
     // IMPORTANTE: Restaurar todos os tokens após limpeza
     if (adminToken) localStorage.setItem('adminToken', adminToken);
@@ -107,10 +123,10 @@ const VehicleForm = () => {
     if (userData) localStorage.setItem('userData', userData);
     
     console.log("Caches limpos com sucesso (tokens preservados)");
-  };
+  }, [id]);
 
   // Função para forçar atualização de uma rota específica
-  const forceRouteRefresh = async (route, param = null) => {
+  const forceRouteRefresh = useCallback(async (route, param = null) => {
     try {
       const timestamp = new Date().getTime();
       const url = param ? `${route}/${param}?_t=${timestamp}` : `${route}?_t=${timestamp}`;
@@ -123,10 +139,12 @@ const VehicleForm = () => {
         }
       });
       console.log(`Rota ${url} atualizada com sucesso`);
+      return true;
     } catch (error) {
       console.warn(`Erro ao atualizar rota ${route}:`, error);
+      return false;
     }
-  };
+  }, []);
 
   // Buscar categorias e dados iniciais ao montar o componente
   useEffect(() => {
@@ -198,24 +216,54 @@ const VehicleForm = () => {
             toast.error("Dados do veículo não encontrados");
           }
 
-          // Buscar dados de estoque
+          // Buscar dados de estoque - VERSÃO MELHORADA
           try {
-            const estoqueResponse = await api.get(`/estoque?_nocache=${new Date().getTime()}`);
+            // Primeiro, tentar buscar diretamente pelo ID do carro (endpoint mais seguro)
+            const estoqueDirectResponse = await api.get(`/estoque/carro/${id}?_nocache=${new Date().getTime()}`);
             
-            if (Array.isArray(estoqueResponse.data)) {
-              const estoqueItem = estoqueResponse.data.find(
-                (item) => item.carro_id === parseInt(id)
-              );
+            if (estoqueDirectResponse.data) {
+              console.log("Dados de estoque encontrados (busca direta):", estoqueDirectResponse.data);
+              setEstoqueData({
+                quantidade: estoqueDirectResponse.data.quantidade || 1,
+                localizacao: estoqueDirectResponse.data.localizacao || "Matriz",
+              });
+            } else {
+              // Método alternativo - buscar lista e filtrar
+              const estoqueResponse = await api.get(`/estoque?_nocache=${new Date().getTime()}`);
+              
+              if (Array.isArray(estoqueResponse.data)) {
+                const estoqueItem = estoqueResponse.data.find(
+                  (item) => item.carro_id === parseInt(id)
+                );
 
-              if (estoqueItem) {
+                if (estoqueItem) {
+                  console.log("Dados de estoque encontrados (lista):", estoqueItem);
+                  setEstoqueData({
+                    quantidade: estoqueItem.quantidade || 1,
+                    localizacao: estoqueItem.localizacao || "Matriz",
+                  });
+                } else {
+                  console.log("Nenhum registro de estoque encontrado para este veículo");
+                  // Valores padrão
+                  setEstoqueData({
+                    quantidade: 1,
+                    localizacao: "Matriz",
+                  });
+                }
+              } else {
+                console.warn("Resposta do estoque não é um array");
                 setEstoqueData({
-                  quantidade: estoqueItem.quantidade || 1,
-                  localizacao: estoqueItem.localizacao || "",
+                  quantidade: 1,
+                  localizacao: "Matriz",
                 });
               }
             }
           } catch (estoqueError) {
             console.error("Erro ao buscar dados do estoque:", estoqueError);
+            setEstoqueData({
+              quantidade: 1,
+              localizacao: "Matriz",
+            });
           }
         } catch (error) {
           console.error("Erro ao buscar dados do veículo:", error);
@@ -383,38 +431,31 @@ const VehicleForm = () => {
       let carroId;
       const timestamp = new Date().getTime();
 
-      // ETAPA 2: Criar ou atualizar o veículo principal
+      // ETAPA 2: Criar ou atualizar o veículo principal - VERSÃO OTIMIZADA
       if (id) {
-        // MODO EDIÇÃO
+        // MODO EDIÇÃO - MODIFICADO PARA RESOLVER O PROBLEMA
         console.log("Atualizando veículo ID:", id);
         
-        const response = await api.put(`/carros/${id}`, carroData, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Content-Type': 'application/json'
-          },
-          params: { _t: timestamp }
-        });
-        
-        console.log("Resposta da atualização:", response.data);
-        carroId = id;
-        
-        // Pausa estratégica para o banco processar
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Verificar se a atualização foi bem-sucedida
         try {
-          const verificacao = await api.get(`/carros/${id}`, {
-            headers: { 'Cache-Control': 'no-cache' },
-            params: { _t: timestamp + 1 }
+          // IMPORTANTE: Separar a atualização - primeiro apenas o carro sem dados de estoque
+          const response = await api.put(`/carros/${id}`, carroData, {
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Content-Type': 'application/json',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            },
+            params: { _t: timestamp }
           });
           
-          if (verificacao.data.modelo !== carroData.modelo) {
-            console.warn("⚠️ Diferença encontrada entre dados enviados e recebidos:");
-            console.warn(`Enviado: ${carroData.modelo}, Recebido: ${verificacao.data.modelo}`);
-          }
-        } catch (err) {
-          console.warn("Não foi possível verificar atualização:", err);
+          console.log("Resposta da atualização do carro:", response.data);
+          carroId = id;
+          
+          // Pausa estratégica para o banco processar
+          await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (updateError) {
+          console.error("Erro crítico na atualização do veículo:", updateError);
+          throw updateError;
         }
       } else {
         // MODO CRIAÇÃO
@@ -422,8 +463,10 @@ const VehicleForm = () => {
         
         const response = await api.post(`/carros`, carroData, {
           headers: {
-            'Cache-Control': 'no-cache',
-            'Content-Type': 'application/json'
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Content-Type': 'application/json',
+            'Pragma': 'no-cache',
+            'Expires': '0'
           },
           params: { _t: timestamp }
         });
@@ -437,67 +480,75 @@ const VehicleForm = () => {
         carroId = response.data.id;
       }
 
-      // ETAPA 3: Atualizar dados de estoque
+      // ETAPA 3: Atualizar estoque SEPARADAMENTE - VERSÃO CORRIGIDA
       if (carroId) {
         try {
           console.log("Atualizando estoque para carro ID:", carroId);
           
-          const estoquePayload = {
-            carro_id: parseInt(carroId),
-            quantidade: parseInt(estoqueData.quantidade) || 1,
-            localizacao: estoqueData.localizacao || "Matriz"
-          };
+          // Verificar primeiro se existe registro de estoque
+          const estoqueCheck = await api.get(`/estoque/carro/${carroId}?_nocache=${new Date().getTime()}`);
           
-          // Usar endpoint especializado para atualizar estoque por carro_id
-          const estoqueResponse = await api.post(`/estoque/atualizar`, estoquePayload, {
-            headers: {
-              'Cache-Control': 'no-cache',
-              'Content-Type': 'application/json'
-            },
-            params: { _t: timestamp + 2 }
-          });
+          if (estoqueCheck.data && estoqueCheck.data.id) {
+            // Existe registro - Fazer update
+            console.log("Registro de estoque existente encontrado:", estoqueCheck.data);
+            
+            await api.put(`/estoque/${estoqueCheck.data.id}`, {
+              quantidade: parseInt(estoqueData.quantidade) || 1,
+              localizacao: estoqueData.localizacao || "Matriz"
+            }, {
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Content-Type': 'application/json',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+              }
+            });
+            console.log("Estoque atualizado com sucesso");
+          } else {
+            // Não existe registro - Criar novo
+            console.log("Nenhum registro de estoque encontrado. Criando novo...");
+            
+            await api.post(`/estoque`, {
+              carro_id: parseInt(carroId),
+              quantidade: parseInt(estoqueData.quantidade) || 1,
+              localizacao: estoqueData.localizacao || "Matriz"
+            }, {
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Content-Type': 'application/json',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+              }
+            });
+            console.log("Novo registro de estoque criado com sucesso");
+          }
           
-          console.log("Resposta da atualização de estoque:", estoqueResponse.data);
+          // Pausa estratégica após atualização de estoque
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Verificação adicional para confirmar atualização
+          const verificacaoFinal = await api.get(`/estoque/carro/${carroId}?_nocache=${new Date().getTime()}`);
+          console.log("Verificação final do estoque:", verificacaoFinal.data);
           
         } catch (estoqueError) {
           console.error("Erro ao atualizar estoque:", estoqueError);
-          toast.warning("Veículo salvo, mas houve problema ao atualizar o estoque");
+          toast.warning("Veículo salvo, mas houve problema ao atualizar o estoque. Tentando alternativa...");
           
-          // Tentar método alternativo para salvar estoque
+          // Método alternativo para garantir a atualização do estoque
           try {
-            // Verificar se já existe estoque para este veículo
-            const estoqueCheck = await api.get(`/estoque`, {
-              params: { _t: timestamp + 3 },
-              headers: { 'Cache-Control': 'no-cache' }
+            await api.post(`/estoque/atualizar`, {
+              carro_id: parseInt(carroId),
+              quantidade: parseInt(estoqueData.quantidade) || 1,
+              localizacao: estoqueData.localizacao || "Matriz"
+            }, {
+              headers: {
+                'Cache-Control': 'no-cache',
+                'Content-Type': 'application/json'
+              }
             });
-            
-            const estoqueExistente = estoqueCheck.data.find(item => 
-              item.carro_id === parseInt(carroId)
-            );
-            
-            if (estoqueExistente) {
-              // Atualizar registro existente
-              await api.put(`/estoque/${estoqueExistente.id}`, {
-                quantidade: parseInt(estoqueData.quantidade) || 1,
-                localizacao: estoqueData.localizacao || "Matriz"
-              }, {
-                params: { _t: timestamp + 4 }
-              });
-            } else {
-              // Criar novo registro
-              await api.post(`/estoque`, {
-                carro_id: parseInt(carroId),
-                quantidade: parseInt(estoqueData.quantidade) || 1,
-                localizacao: estoqueData.localizacao || "Matriz"
-              }, {
-                params: { _t: timestamp + 5 }
-              });
-            }
-            
-            console.log("Estoque atualizado pelo método alternativo");
-            
-          } catch (estoqueError2) {
-            console.error("Falha também no método alternativo:", estoqueError2);
+            console.log("Estoque atualizado com método alternativo");
+          } catch (estoqueAltError) {
+            console.error("Falha também no método alternativo:", estoqueAltError);
           }
         }
       }
@@ -511,11 +562,12 @@ const VehicleForm = () => {
           formDataImagens.append("imagens", img);
         });
         
-        // Tentativa com múltiplos endpoints conhecidos
         try {
           await api.post(`/imagens/carro/${carroId}`, formDataImagens, {
-            headers: { "Content-Type": "multipart/form-data" },
-            params: { _t: timestamp + 6 }
+            headers: { 
+              "Content-Type": "multipart/form-data",
+              'Cache-Control': 'no-cache'
+            }
           });
           console.log("Upload de imagens realizado com sucesso");
         } catch (uploadError) {
@@ -523,8 +575,10 @@ const VehicleForm = () => {
           
           try {
             await api.post(`/upload/carros/${carroId}`, formDataImagens, {
-              headers: { "Content-Type": "multipart/form-data" },
-              params: { _t: timestamp + 7 }
+              headers: { 
+                "Content-Type": "multipart/form-data",
+                'Cache-Control': 'no-cache'
+              }
             });
             console.log("Upload alternativo de imagens realizado com sucesso");
           } catch (uploadError2) {
@@ -537,14 +591,13 @@ const VehicleForm = () => {
       // ETAPA 5: Forçar atualização de dados em todas as rotas importantes
       console.log("Forçando atualização de todas as rotas importantes...");
       
-      await Promise.allSettled([
+      await Promise.all([
         forceRouteRefresh('/carros'),
         forceRouteRefresh('/estoque'),
         forceRouteRefresh('/veiculos'),
         carroId ? forceRouteRefresh('/carros', carroId) : null,
-        // Atualizar também a página de detalhes do veículo
         carroId ? forceRouteRefresh(`/veiculos/${carroId}`) : null
-      ]);
+      ].filter(Boolean));
       
       // ETAPA 6: Limpar caches novamente para garantir dados atualizados
       limparCaches();
@@ -552,12 +605,17 @@ const VehicleForm = () => {
       toast.success("Veículo salvo com sucesso!");
       console.log("✅ OPERAÇÃO CONCLUÍDA COM SUCESSO");
       
-      // ETAPA 7: Redirecionar para a página de estoque
+      // ETAPA 7: Redirecionar para a página de estoque com atraso
       setTimeout(() => {
         console.log("Redirecionando para página de estoque...");
-        // Usar window.location para garantir reload completo e dados atualizados
-        window.location.href = '/admin/estoque';
-      }, 1500);
+        
+        // Forçar recarga completa da página para garantir dados atualizados
+        sessionStorage.setItem('forceRefresh', 'true');
+        
+        // Usar window.location com query param de timestamp para forçar recarga
+        const refreshTimestamp = new Date().getTime();
+        window.location.href = `/admin/estoque?_refresh=${refreshTimestamp}`;
+      }, 2000);
       
     } catch (error) {
       console.error("ERRO DURANTE O PROCESSAMENTO:", error);
