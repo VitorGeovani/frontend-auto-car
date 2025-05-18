@@ -65,7 +65,7 @@
 
   .avaliacao {
     margin-top: 8px;
-    color: #FFD700;
+    color: #ffd700;
     font-size: 14px;
     letter-spacing: 2px;
   }
@@ -76,21 +76,25 @@
     align-items: center;
     justify-content: center;
     padding: 30px;
-    
+
     .spinner {
       animation: spin 1s linear infinite;
       font-size: 2rem;
       color: #d62828;
       margin-bottom: 10px;
     }
-    
+
     p {
       color: #888;
     }
   }
 
   @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }

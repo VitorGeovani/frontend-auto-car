@@ -1,15 +1,16 @@
-@import './components/Header/Header.scss';
-@import './components/About/About.scss';
-@import './components/Services/Services.scss';
-@import './components/Cars/Cars.scss';
-@import './components/Testimonials/Testimonials.scss';
-@import './components/Contact/Contact.scss';
-@import './components/Footer/Footer.scss';
+@import "./components/Header/Header.scss";
+@import "./components/About/About.scss";
+@import "./components/Services/Services.scss";
+@import "./components/Cars/Cars.scss";
+@import "./components/Testimonials/Testimonials.scss";
+@import "./components/Contact/Contact.scss";
+@import "./components/Footer/Footer.scss";
 
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   background-color: #f5f5f5;
   scroll-behavior: smooth;
 }

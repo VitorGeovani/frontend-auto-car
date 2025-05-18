@@ -2,7 +2,7 @@
   position: relative;
   padding: 4rem 2rem;
   overflow: hidden;
-  
+
   .map-background {
     position: absolute;
     top: 0;
@@ -10,13 +10,13 @@
     width: 100%;
     height: 100%;
     z-index: 1;
-    
+
     .leaflet-container {
       width: 100%;
       height: 100%;
     }
   }
-  
+
   .overlay {
     position: absolute;
     top: 0;
@@ -26,31 +26,31 @@
     background-color: rgba(248, 249, 250, 0.85);
     z-index: 2;
   }
-  
+
   .contact-container {
     position: relative;
     max-width: 1200px;
     margin: 0 auto;
     text-align: center;
     z-index: 3;
-  
+
     h2 {
       font-size: 2.5rem;
       color: #333;
     }
-  
+
     p {
       margin: 0.5rem 0 2rem;
       color: #555;
       font-size: 1.1rem;
     }
-  
+
     .contact-content {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 3rem;
-  
+
       .contact-form {
         flex: 1;
         min-width: 300px;
@@ -60,7 +60,7 @@
         padding: 1.5rem;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  
+
         input,
         textarea {
           padding: 0.8rem;
@@ -69,7 +69,7 @@
           border-radius: 5px;
           font-size: 1rem;
           background-color: rgba(255, 255, 255, 0.9);
-          
+
           // Estilo para campos pré-preenchidos quando usuário está logado
           &.pre-filled {
             background-color: rgba(233, 249, 238, 0.9);
@@ -78,7 +78,7 @@
             transition: all 0.3s ease;
           }
         }
-  
+
         button {
           padding: 0.8rem;
           background-color: #d62828;
@@ -88,13 +88,13 @@
           border-radius: 5px;
           cursor: pointer;
           transition: background 0.3s;
-  
+
           &:hover {
             background-color: #a61e1e;
           }
         }
       }
-  
+
       .contact-info {
         flex: 1;
         min-width: 300px;
@@ -105,14 +105,14 @@
         padding: 1.5rem;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  
+
         div {
           display: flex;
           align-items: center;
           margin: 1rem 0;
           font-size: 1.1rem;
           color: #333;
-  
+
           .icon {
             margin-right: 1rem;
             font-size: 1.5rem;
@@ -122,26 +122,25 @@
       }
     }
   }
-  
+
   // Corrigir a visualização de ícones do mapa
   .leaflet-marker-icon,
   .leaflet-marker-shadow {
     box-shadow: none;
   }
-  
+
   // Ajustar controles do Leaflet para evitar sobreposição com o conteúdo
   .leaflet-control-container {
     z-index: 2;
   }
 
   // Adicionar depois dos estilos existentes
-
   .form-type-selector {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
     gap: 20px;
-    
+
     label {
       display: flex;
       align-items: center;
@@ -151,11 +150,11 @@
       border-radius: 20px;
       background-color: rgba(255, 255, 255, 0.1);
       transition: all 0.3s ease;
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.2);
       }
-      
+
       input {
         margin: 0;
       }
@@ -185,7 +184,7 @@
     gap: 8px;
     animation: fadeIn 0.3s ease;
   }
-  
+
   // Nova classe para mensagem informativa quando usuário está logado
   .info-message {
     background-color: rgba(86, 130, 255, 0.9);
@@ -204,36 +203,42 @@
     display: flex;
     flex-direction: column;
     margin-bottom: 15px;
-    
+
     label {
       margin-bottom: 8px;
       font-size: 0.9rem;
       color: rgba(255, 255, 255, 0.8);
     }
-    
+
     .estrelas {
       display: flex;
       gap: 5px;
-      
+
       .estrela {
         font-size: 1.5rem;
         color: rgba(255, 255, 255, 0.5);
         cursor: pointer;
         transition: all 0.2s ease;
-        
+
         &:hover {
           transform: scale(1.2);
         }
-        
+
         &.ativa {
-          color: #FFD700;
+          color: #ffd700;
         }
       }
     }
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

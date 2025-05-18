@@ -1,66 +1,65 @@
 .about {
-    padding: 4rem 2rem;
-    background-color: #f9f9f9;
-  
-    &__content {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      gap: 3rem;
-      flex-wrap: wrap;
+  padding: 4rem 2rem;
+  background-color: #f9f9f9;
+
+  &__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+
+  &__text {
+    flex: 1;
+
+    .tag {
+      font-size: 1rem;
+      color: #fff;
+      background-color: #e63946;
+      padding: 0.25rem 0.75rem;
+      border-radius: 5px;
+      display: inline-block;
+      margin-bottom: 1rem;
     }
-  
-    &__text {
-      flex: 1;
-  
-      .tag {
-        font-size: 1rem;
-        color: #fff;
-        background-color: #e63946;
-        padding: 0.25rem 0.75rem;
-        border-radius: 5px;
-        display: inline-block;
-        margin-bottom: 1rem;
-      }
-  
-      h2 {
-        font-size: 2rem;
-        color: #1d3557;
-        margin-bottom: 1rem;
-      }
-  
-      p {
-        font-size: 1.1rem;
-        color: #333;
-        margin-bottom: 2rem;
-        line-height: 1.6;
-      }
-  
-      .btn {
-        padding: 0.75rem 1.5rem;
-        background-color: #e63946;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background 0.3s ease;
-  
-        &:hover {
-          background-color: #d62828;
-        }
-      }
+
+    h2 {
+      font-size: 2rem;
+      color: #1d3557;
+      margin-bottom: 1rem;
     }
-  
-    &__image {
-      flex: 1;
-      img {
-        width: 100%;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        object-fit: cover;
+
+    p {
+      font-size: 1.1rem;
+      color: #333;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      background-color: #e63946;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background-color: #d62828;
       }
     }
   }
-  
+
+  &__image {
+    flex: 1;
+    img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      object-fit: cover;
+    }
+  }
+}

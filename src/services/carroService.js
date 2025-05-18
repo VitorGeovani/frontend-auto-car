@@ -1,22 +1,24 @@
-import api from './api';
+import api from "./api";
 
 export const listarCarrosEstoque = async () => {
   try {
     // Primeiro busca todos os carros
-    const carrosResponse = await api.get('/carros');
-    
+    const carrosResponse = await api.get("/carros");
+
     // Depois busca o estoque para saber quais carros estão disponíveis
-    const estoqueResponse = await api.get('/estoque');
-    
+    const estoqueResponse = await api.get("/estoque");
+
     // Filtra apenas os carros que estão em estoque e com quantidade > 0
-    const carrosEmEstoque = carrosResponse.data.filter(carro => {
-      const itemEstoque = estoqueResponse.data.find(item => item.carro_id === carro.id);
+    const carrosEmEstoque = carrosResponse.data.filter((carro) => {
+      const itemEstoque = estoqueResponse.data.find(
+        (item) => item.carro_id === carro.id
+      );
       return itemEstoque && itemEstoque.quantidade > 0;
     });
 
     return carrosEmEstoque;
   } catch (error) {
-    console.error('Erro ao listar carros em estoque:', error);
+    console.error("Erro ao listar carros em estoque:", error);
     throw error;
   }
 };

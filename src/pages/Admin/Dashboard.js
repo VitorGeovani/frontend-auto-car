@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import './Dashboard.scss';
-import api from '../../services/api';
-import { 
-  FaCarSide, 
-  FaUsers, 
-  FaCommentDots, 
-  FaPlus, 
-  FaPencilAlt, 
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import "./Dashboard.scss";
+import api from "../../services/api";
+import {
+  FaCarSide,
+  FaUsers,
+  FaCommentDots,
+  FaPlus,
+  FaPencilAlt,
   FaWarehouse,
   FaBell,
   FaSync,
-  FaExclamationTriangle
-} from 'react-icons/fa';
+  FaExclamationTriangle,
+} from "react-icons/fa";
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({ 
-    clientes: 0, 
+  const [stats, setStats] = useState({
+    clientes: 0,
     estoque: 0,
     interesses: 0,
-    depoimentos: 0  // Descomentado esta linha
+    depoimentos: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,20 +28,24 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      console.log('Solicitando dados do dashboard...');
-      const res = await api.get('/admin/dashboard');
-      console.log('Dados recebidos:', res.data);
+      console.log("Solicitando dados do dashboard...");
+      const res = await api.get("/admin/dashboard");
+      console.log("Dados recebidos:", res.data);
       setStats({
         clientes: res.data.clientes || 0,
         estoque: res.data.estoque || 0,
         interesses: res.data.interesses || 0,
-        depoimentos: res.data.depoimentos || 0  // Adicionado esta linha
+        depoimentos: res.data.depoimentos || 0,
       });
       setError(null);
       setLastUpdated(new Date());
     } catch (err) {
       console.error("Erro ao carregar dados do dashboard:", err);
-      setError(`Não foi possível carregar os dados: ${err.message || 'Erro desconhecido'}`);
+      setError(
+        `Não foi possível carregar os dados: ${
+          err.message || "Erro desconhecido"
+        }`
+      );
     } finally {
       setLoading(false);
     }
@@ -56,13 +60,13 @@ const Dashboard = () => {
   };
 
   const formatDateTime = (date) => {
-    if (!date) return '';
-    return new Intl.DateTimeFormat('pt-BR', { 
-      day: '2-digit',
-      month: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    if (!date) return "";
+    return new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
   };
 
@@ -73,12 +77,12 @@ const Dashboard = () => {
         {lastUpdated && (
           <div className="last-update">
             Última atualização: {formatDateTime(lastUpdated)}
-            <button 
-              className="refresh-btn" 
-              onClick={handleRefresh} 
+            <button
+              className="refresh-btn"
+              onClick={handleRefresh}
               disabled={loading}
             >
-              <FaSync className={loading ? 'rotating' : ''} /> Atualizar
+              <FaSync className={loading ? "rotating" : ""} /> Atualizar
             </button>
           </div>
         )}
@@ -87,10 +91,12 @@ const Dashboard = () => {
       {error && (
         <div className="error-message">
           <FaExclamationTriangle /> {error}
-          <button className="retry-btn" onClick={handleRefresh}>Tentar novamente</button>
+          <button className="retry-btn" onClick={handleRefresh}>
+            Tentar novamente
+          </button>
         </div>
       )}
-      
+
       <div className="stats-grid">
         <div className="stat-card">
           <FaCarSide className="icon" />
@@ -124,7 +130,7 @@ const Dashboard = () => {
           )}
           <Link to="/admin/interesses">Ver detalhes</Link>
         </div>
-        
+
         <div className="stat-card">
           <FaCommentDots className="icon" />
           <h3>Depoimentos</h3>

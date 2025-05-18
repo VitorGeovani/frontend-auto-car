@@ -96,13 +96,13 @@
           color: #e63946;
           margin-bottom: 1rem;
         }
-        
+
         .car__buttons {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
           margin-top: 1rem;
-          
+
           a {
             display: flex;
             align-items: center;
@@ -114,25 +114,25 @@
             font-size: 0.9rem;
             text-decoration: none;
             transition: all 0.2s ease;
-            
+
             svg {
               font-size: 1rem;
             }
           }
-          
+
           .btn-details {
             background-color: #1d3557;
             color: white;
-            
+
             &:hover {
               background-color: #152a45;
             }
           }
-          
+
           .btn-interest {
-            background-color: #25D366;
+            background-color: #25d366;
             color: white;
-            
+
             &:hover {
               background-color: #1fb959;
             }
@@ -142,8 +142,6 @@
     }
   }
 }
-
-// Adicionar ao arquivo SCSS existente
 
 .loading-container {
   display: flex;

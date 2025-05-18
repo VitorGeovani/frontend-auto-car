@@ -61,28 +61,25 @@ function App() {
           element={
             <>
               <Estoque />
-              
             </>
           }
         />
 
         {/* Páginas de detalhes de veículos e interesse */}
-        <Route 
-          path="/veiculo/:id" 
+        <Route
+          path="/veiculo/:id"
           element={
             <>
               <VeiculoDetalhes />
-              
             </>
           }
         />
-        
-        <Route 
-          path="/interesse/:id" 
+
+        <Route
+          path="/interesse/:id"
           element={
             <>
               <Interesse />
-              
             </>
           }
         />
@@ -117,12 +114,11 @@ function App() {
           <Route path="veiculos/editar/:id" element={<VehicleForm />} />
           <Route path="usuarios" element={<UserList />} />
           <Route path="depoimentos" element={<TestimonialList />} />
-          
+
           {/* Rotas de Interesses */}
           <Route path="interesses" element={<AdminInteresses />} />
           <Route path="interesses/:id" element={<DetalheInteresse />} />
-          
-          {/* Se você quiser estas páginas também dentro da área admin, use caminhos relativos */}
+
           <Route path="veiculo/:id" element={<VeiculoDetalhes />} />
           <Route path="interesse/:id" element={<Interesse />} />
         </Route>

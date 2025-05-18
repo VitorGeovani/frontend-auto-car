@@ -1,44 +1,43 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import api from '../../services/api';
-import './AdminLogin.scss';
-import { FaLock, FaEnvelope, FaCar, FaArrowLeft, FaHome } from 'react-icons/fa';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../../services/api";
+import "./AdminLogin.scss";
+import { FaLock, FaEnvelope, FaCar, FaArrowLeft, FaHome } from "react-icons/fa";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    senha: ''
+    email: "",
+    senha: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
-    
+
     try {
       // Corrigido o endpoint para usar o prefixo /auth
-      const response = await api.post('/auth/admin/login', formData);
-      
+      const response = await api.post("/auth/admin/login", formData);
+
       // Armazenar token e dados do admin em localStorage
-      localStorage.setItem('adminToken', response.data.token);
-      localStorage.setItem('adminData', JSON.stringify(response.data.admin));
-      
+      localStorage.setItem("adminToken", response.data.token);
+      localStorage.setItem("adminData", JSON.stringify(response.data.admin));
+
       // Redirecionar para o dashboard admin
-      navigate('/admin/');
-      
+      navigate("/admin/");
     } catch (err) {
       console.error("Erro ao fazer login:", err);
-      setError(err.response?.data?.erro || 'Email ou senha incorretos');
+      setError(err.response?.data?.erro || "Email ou senha incorretos");
     } finally {
       setLoading(false);
     }
@@ -49,13 +48,15 @@ const AdminLogin = () => {
       <div className="login-container">
         <div className="logo">
           <FaCar />
-          <h1>Auto Car <span>Admin</span></h1>
+          <h1>
+            Auto Car <span>Admin</span>
+          </h1>
         </div>
-        
+
         <h2>Acesso Administrativo</h2>
-        
+
         {error && <div className="error-message">{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">
@@ -71,7 +72,7 @@ const AdminLogin = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="senha">
               <FaLock />
@@ -86,12 +87,12 @@ const AdminLogin = () => {
               required
             />
           </div>
-          
+
           <button type="submit" disabled={loading}>
-            {loading ? 'Processando...' : 'Entrar'}
+            {loading ? "Processando..." : "Entrar"}
           </button>
         </form>
-        
+
         <div className="navigation-links">
           <Link to="/login-cadastro" className="back-option">
             <FaArrowLeft /> Voltar às opções de acesso

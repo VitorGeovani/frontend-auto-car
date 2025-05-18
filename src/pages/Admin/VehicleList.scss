@@ -1,48 +1,47 @@
 .vehicle-list {
-    padding: 2rem;
-  
-    h2 {
-      margin-bottom: 1rem;
-      color: #333;
+  padding: 2rem;
+
+  h2 {
+    margin-bottom: 1rem;
+    color: #333;
+  }
+
+  .vehicle-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-  
-    .vehicle-table {
-      width: 100%;
-      border-collapse: collapse;
-  
-      th,
-      td {
-        padding: 0.8rem;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-  
-      th {
-        background-color: #f5f5f5;
-      }
-  
-      .actions {
-        display: flex;
-        gap: 0.5rem;
-  
-        button {
-          padding: 0.4rem 0.8rem;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 0.9rem;
-  
-          &.edit {
-            background-color: #2a9d8f;
-            color: #fff;
-          }
-  
-          &.delete {
-            background-color: #e63946;
-            color: #fff;
-          }
+
+    th {
+      background-color: #f5f5f5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+
+      button {
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+
+        &.edit {
+          background-color: #2a9d8f;
+          color: #fff;
+        }
+
+        &.delete {
+          background-color: #e63946;
+          color: #fff;
         }
       }
     }
   }
-  
+}

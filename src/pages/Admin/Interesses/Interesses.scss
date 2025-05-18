@@ -8,18 +8,18 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
-    
+
     h1 {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       margin: 0;
-      
+
       .icon {
         color: #3498db;
       }
     }
-    
+
     .refresh-button {
       background-color: #3498db;
       color: white;
@@ -28,7 +28,7 @@
       border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.2s;
-      
+
       &:hover {
         background-color: #2980b9;
       }
@@ -54,7 +54,7 @@
   .interesses-table {
     width: 100%;
     border-collapse: collapse;
-    
+
     th {
       background-color: #f8f9fa;
       padding: 1rem;
@@ -63,63 +63,67 @@
       color: #495057;
       font-weight: 600;
     }
-    
+
     td {
       padding: 1rem;
       border-bottom: 1px solid #e9ecef;
     }
-    
+
     tr.unread {
       background-color: #fff8e6;
-      
+
       &:hover {
         background-color: #fff0cc;
       }
     }
-    
+
     tr:not(.unread):hover {
       background-color: #f8f9fa;
     }
-    
-    .cliente-info, .veiculo-info {
-      .nome, .modelo {
+
+    .cliente-info,
+    .veiculo-info {
+      .nome,
+      .modelo {
         font-weight: 600;
       }
-      
-      .email, .ano {
+
+      .email,
+      .ano {
         color: #6c757d;
         font-size: 0.85rem;
       }
     }
-    
+
     .time {
       font-size: 0.85rem;
       color: #6c757d;
     }
-    
+
     .status-badge {
       display: inline-block;
       padding: 0.25rem 0.5rem;
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
-      
+
       &.lido {
         background-color: #d4edda;
         color: #155724;
       }
-      
+
       &.nao-lido {
         background-color: #fff3cd;
         color: #856404;
       }
     }
-    
+
     .actions {
       display: flex;
       gap: 0.5rem;
-      
-      button, a {
+
+      button,
+      a {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -131,26 +135,26 @@
         transition: background-color 0.2s;
         color: white;
       }
-      
+
       .view-button {
         background-color: #3498db;
-        
+
         &:hover {
           background-color: #2980b9;
         }
       }
-      
+
       .read-button {
         background-color: #27ae60;
-        
+
         &:hover {
           background-color: #2ecc71;
         }
       }
-      
+
       .delete-button {
         background-color: #e74c3c;
-        
+
         &:hover {
           background-color: #c0392b;
         }
@@ -170,27 +174,27 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-    
+
     h1 {
       margin: 0;
     }
-    
+
     .back-button {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       color: #3498db;
       text-decoration: none;
-      
+
       &:hover {
         text-decoration: underline;
       }
     }
-    
+
     .actions {
       display: flex;
       gap: 1rem;
-      
+
       button {
         display: flex;
         align-items: center;
@@ -201,18 +205,18 @@
         cursor: pointer;
         color: white;
         transition: background-color 0.2s;
-        
+
         &.btn-read {
           background-color: #27ae60;
-          
+
           &:hover {
             background-color: #2ecc71;
           }
         }
-        
+
         &.btn-delete {
           background-color: #e74c3c;
-          
+
           &:hover {
             background-color: #c0392b;
           }
@@ -226,26 +230,26 @@
     align-items: center;
     gap: 1rem;
     margin-bottom: 2rem;
-    
+
     .date {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       color: #6c757d;
     }
-    
+
     .status-badge {
       display: inline-block;
       padding: 0.25rem 0.5rem;
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
-      
+
       &.lido {
         background-color: #d4edda;
         color: #155724;
       }
-      
+
       &.nao-lido {
         background-color: #fff3cd;
         color: #856404;
@@ -265,7 +269,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    
+
     .card-header {
       background-color: #f8f9fa;
       padding: 1rem;
@@ -275,33 +279,33 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      
+
       svg {
         color: #3498db;
       }
     }
-    
+
     .card-body {
       padding: 1.5rem;
-      
+
       h3 {
         margin-top: 0;
         margin-bottom: 1rem;
       }
-      
+
       p {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         margin-bottom: 0.75rem;
       }
-      
+
       .view-vehicle-link {
         display: inline-block;
         margin-top: 1rem;
         color: #3498db;
         text-decoration: none;
-        
+
         &:hover {
           text-decoration: underline;
         }
@@ -311,7 +315,7 @@
 
   .mensagem-card {
     margin-bottom: 2rem;
-    
+
     .mensagem {
       white-space: pre-wrap;
       line-height: 1.6;

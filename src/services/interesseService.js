@@ -1,12 +1,12 @@
-import api from './api';
+import api from "./api";
 
 // Enviar interesse em um veículo
 export const enviarInteresse = async (dadosInteresse) => {
   try {
-    const response = await api.post('/api/interesses', dadosInteresse);
+    const response = await api.post("/api/interesses", dadosInteresse);
     return response.data;
   } catch (error) {
-    console.error('Erro ao enviar interesse:', error);
+    console.error("Erro ao enviar interesse:", error);
     throw error;
   }
 };
@@ -14,10 +14,10 @@ export const enviarInteresse = async (dadosInteresse) => {
 // Listar todos os interesses (para admins)
 export const listarInteresses = async () => {
   try {
-    const response = await api.get('/api/interesses');
+    const response = await api.get("/api/interesses");
     return response.data;
   } catch (error) {
-    console.error('Erro ao listar interesses:', error);
+    console.error("Erro ao listar interesses:", error);
     throw error;
   }
 };
@@ -28,7 +28,7 @@ export const obterInteressePorId = async (id) => {
     const response = await api.get(`/api/interesses/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Erro ao obter interesse:', error);
+    console.error("Erro ao obter interesse:", error);
     throw error;
   }
 };
@@ -39,7 +39,7 @@ export const marcarComoLido = async (id) => {
     const response = await api.put(`/api/interesses/${id}/lido`);
     return response.data;
   } catch (error) {
-    console.error('Erro ao marcar interesse como lido:', error);
+    console.error("Erro ao marcar interesse como lido:", error);
     throw error;
   }
 };
@@ -50,7 +50,7 @@ export const excluirInteresse = async (id) => {
     const response = await api.delete(`/api/interesses/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Erro ao excluir interesse:', error);
+    console.error("Erro ao excluir interesse:", error);
     throw error;
   }
 };

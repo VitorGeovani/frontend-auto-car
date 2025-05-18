@@ -1,10 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Spinner, Alert, Carousel, Button } from 'react-bootstrap';
-import { FaCalendarAlt, FaTachometerAlt, FaGasPump, FaPaintBrush, FaCog, FaInfoCircle, FaTag, FaArrowLeft, FaListUl } from 'react-icons/fa';
-import { obterCarroPorId } from '../../services/carroService';
-import api from '../../services/api';
-import './VeiculoDetalhes.scss';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Container,
+  Row,
+  Col,
+  Spinner,
+  Alert,
+  Carousel,
+  Button,
+} from "react-bootstrap";
+import {
+  FaCalendarAlt,
+  FaTachometerAlt,
+  FaGasPump,
+  FaPaintBrush,
+  FaCog,
+  FaInfoCircle,
+  FaTag,
+  FaArrowLeft,
+  FaListUl,
+} from "react-icons/fa";
+import { obterCarroPorId } from "../../services/carroService";
+import api from "../../services/api";
+import "./VeiculoDetalhes.scss";
 
 const VeiculoDetalhes = () => {
   const { id } = useParams();
@@ -20,20 +38,22 @@ const VeiculoDetalhes = () => {
         setLoading(true);
         const data = await obterCarroPorId(id);
         setVeiculo(data);
-        
+
         if (data && data.categoria_id) {
           try {
-            const categoriaResponse = await api.get(`/categorias/${data.categoria_id}`);
+            const categoriaResponse = await api.get(
+              `/categorias/${data.categoria_id}`
+            );
             setCategoriaInfo(categoriaResponse.data);
           } catch (catErr) {
-            console.error('Erro ao buscar detalhes da categoria:', catErr);
+            console.error("Erro ao buscar detalhes da categoria:", catErr);
           }
         }
-        
+
         setError(null);
       } catch (err) {
-        console.error('Erro ao carregar detalhes do veículo:', err);
-        setError('Não foi possível carregar os detalhes deste veículo.');
+        console.error("Erro ao carregar detalhes do veículo:", err);
+        setError("Não foi possível carregar os detalhes deste veículo.");
       } finally {
         setLoading(false);
       }
@@ -43,24 +63,25 @@ const VeiculoDetalhes = () => {
   }, [id]);
 
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return 'https://via.placeholder.com/800x400?text=Sem+Imagem';
-    if (imagePath.startsWith('http')) return imagePath;
+    if (!imagePath)
+      return "https://via.placeholder.com/800x400?text=Sem+Imagem";
+    if (imagePath.startsWith("http")) return imagePath;
     return `${api.defaults.baseURL}${imagePath}`;
   };
 
   const formatarPreco = (preco) => {
-    return `R$ ${parseFloat(preco).toLocaleString('pt-BR', {
+    return `R$ ${parseFloat(preco).toLocaleString("pt-BR", {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     })}`;
   };
 
   const voltarParaCarros = () => {
-    navigate('/');
+    navigate("/");
   };
-  
+
   const voltarParaEstoque = () => {
-    navigate('/estoque');
+    navigate("/estoque");
   };
 
   if (loading) {
@@ -94,18 +115,18 @@ const VeiculoDetalhes = () => {
         <Row>
           <Col lg={12} xl={10} className="mx-auto">
             <div className="botoes-navegacao mb-3">
-              <Button 
-                variant="outline-secondary" 
-                size="sm" 
+              <Button
+                variant="outline-secondary"
+                size="sm"
                 className="voltar-btn"
                 onClick={voltarParaCarros}
               >
                 <FaArrowLeft /> Voltar para Home
               </Button>
-              
-              <Button 
-                variant="outline-primary" 
-                size="sm" 
+
+              <Button
+                variant="outline-primary"
+                size="sm"
                 className="voltar-btn voltar-estoque-btn"
                 onClick={voltarParaEstoque}
               >
@@ -121,7 +142,9 @@ const VeiculoDetalhes = () => {
                       <img
                         className="d-block w-100"
                         src={getImageUrl(imagem)}
-                        alt={`${veiculo.marca} ${veiculo.modelo} - Imagem ${index + 1}`}
+                        alt={`${veiculo.marca} ${veiculo.modelo} - Imagem ${
+                          index + 1
+                        }`}
                       />
                     </Carousel.Item>
                   ))}
@@ -136,10 +159,14 @@ const VeiculoDetalhes = () => {
             </div>
 
             <div className="veiculo-info">
-              <h2>{veiculo.marca} {veiculo.modelo}</h2>
+              <h2>
+                {veiculo.marca} {veiculo.modelo}
+              </h2>
               <div className="preco">
-                {veiculo.preco && typeof veiculo.preco === 'string' && veiculo.preco.startsWith('R$') 
-                  ? veiculo.preco 
+                {veiculo.preco &&
+                typeof veiculo.preco === "string" &&
+                veiculo.preco.startsWith("R$")
+                  ? veiculo.preco
                   : formatarPreco(veiculo.preco)}
               </div>
 
@@ -150,37 +177,47 @@ const VeiculoDetalhes = () => {
                 </div>
                 <div className="detalhe">
                   <FaTachometerAlt />
-                  <span>KM: {veiculo.quilometragem?.toLocaleString() || 0}</span>
+                  <span>
+                    KM: {veiculo.quilometragem?.toLocaleString() || 0}
+                  </span>
                 </div>
                 <div className="detalhe">
                   <FaGasPump />
-                  <span>Combustível: {veiculo.combustivel || '-'}</span>
+                  <span>Combustível: {veiculo.combustivel || "-"}</span>
                 </div>
                 <div className="detalhe">
                   <FaPaintBrush />
-                  <span>Cor: {veiculo.cores || '-'}</span>
+                  <span>Cor: {veiculo.cores || "-"}</span>
                 </div>
                 <div className="detalhe">
                   <FaCog />
-                  <span>Transmissão: {veiculo.transmissao || '-'}</span>
+                  <span>Transmissão: {veiculo.transmissao || "-"}</span>
                 </div>
                 <div className="detalhe">
                   <FaTag />
-                  <span>Categoria: {categoriaInfo?.nome || (veiculo.categoria?.nome) || '-'}</span>
+                  <span>
+                    Categoria:{" "}
+                    {categoriaInfo?.nome || veiculo.categoria?.nome || "-"}
+                  </span>
                 </div>
               </div>
 
               <div className="descricao">
                 <h3>Descrição</h3>
-                <p>{veiculo.descricao || 'Não há descrição disponível para este veículo.'}</p>
+                <p>
+                  {veiculo.descricao ||
+                    "Não há descrição disponível para este veículo."}
+                </p>
               </div>
 
               {veiculo.opcionais && veiculo.opcionais.length > 0 && (
                 <div className="opcionais">
                   <h3>Opcionais</h3>
                   <ul>
-                    {veiculo.opcionais.split(',').map((opcional, index) => (
-                      <li key={index}><FaInfoCircle /> {opcional.trim()}</li>
+                    {veiculo.opcionais.split(",").map((opcional, index) => (
+                      <li key={index}>
+                        <FaInfoCircle /> {opcional.trim()}
+                      </li>
                     ))}
                   </ul>
                 </div>

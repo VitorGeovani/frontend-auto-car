@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import './Register.scss'; // Se quiser estilizar
+import React, { useState } from "react";
+import "./Register.scss";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    senha: '',
-    telefone: '',
+    nome: "",
+    email: "",
+    senha: "",
+    telefone: "",
   });
 
   const handleChange = (e) => {
@@ -18,8 +18,7 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Dados enviados:', formData);
-    // Aqui você pode fazer a requisição para a API
+    console.log("Dados enviados:", formData);
   };
 
   return (

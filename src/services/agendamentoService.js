@@ -1,12 +1,12 @@
-import api from './api';
+import api from "./api";
 
 // Enviar interesse em um veículo
 export const enviarInteresse = async (dadosInteresse) => {
   try {
-    const response = await api.post('/agendamentos', dadosInteresse);
+    const response = await api.post("/agendamentos", dadosInteresse);
     return response.data;
   } catch (error) {
-    console.error('Erro ao enviar interesse:', error);
+    console.error("Erro ao enviar interesse:", error);
     throw error;
   }
 };
@@ -14,10 +14,10 @@ export const enviarInteresse = async (dadosInteresse) => {
 // Listar agendamentos/interesses do usuário
 export const listarAgendamentosUsuario = async () => {
   try {
-    const response = await api.get('/agendamentos/usuario');
+    const response = await api.get("/agendamentos/usuario");
     return response.data;
   } catch (error) {
-    console.error('Erro ao listar agendamentos do usuário:', error);
+    console.error("Erro ao listar agendamentos do usuário:", error);
     throw error;
   }
 };
@@ -25,10 +25,10 @@ export const listarAgendamentosUsuario = async () => {
 // Listar todos os agendamentos/interesses (admin)
 export const listarTodosAgendamentos = async () => {
   try {
-    const response = await api.get('/admin/agendamentos');
+    const response = await api.get("/admin/agendamentos");
     return response.data;
   } catch (error) {
-    console.error('Erro ao listar todos os agendamentos:', error);
+    console.error("Erro ao listar todos os agendamentos:", error);
     throw error;
   }
 };

@@ -8,7 +8,7 @@ const Header = () => {
 
   useEffect(() => {
     // Verificar se o usuário está logado ao carregar o componente
-    const userDataString = localStorage.getItem('userData');
+    const userDataString = localStorage.getItem("userData");
     if (userDataString) {
       try {
         const parsedUserData = JSON.parse(userDataString);
@@ -20,7 +20,7 @@ const Header = () => {
 
     // Adicionar um event listener para atualizar o header quando o login for bem-sucedido
     const handleStorageChange = () => {
-      const updatedUserData = localStorage.getItem('userData');
+      const updatedUserData = localStorage.getItem("userData");
       if (updatedUserData) {
         try {
           setUserData(JSON.parse(updatedUserData));
@@ -32,22 +32,22 @@ const Header = () => {
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    
+    window.addEventListener("storage", handleStorageChange);
+
     // Criando um evento personalizado que podemos disparar após o login
-    window.addEventListener('userLogin', handleStorageChange);
+    window.addEventListener("userLogin", handleStorageChange);
 
     // Limpar os event listeners ao desmontar o componente
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('userLogin', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("userLogin", handleStorageChange);
     };
   }, []);
 
   // Função para realizar logout
   const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userData');
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userData");
     setUserData(null);
   };
 
@@ -55,8 +55,10 @@ const Header = () => {
     <header className="header">
       <div className="container">
         <div className="logo">
-        <FaCar className="logo-icon" />
-          <a href="/" className="logo-link"><span>Auto Car</span></a>
+          <FaCar className="logo-icon" />
+          <a href="/" className="logo-link">
+            <span>Auto Car</span>
+          </a>
         </div>
         <nav className="nav">
           <a href="#about">Sobre</a>
@@ -69,7 +71,7 @@ const Header = () => {
           <a href="#contact" className="cta-button">
             <FaPhoneAlt /> Agende sua visita
           </a>
-          
+
           {userData ? (
             <div className="user-menu">
               <span className="user-greeting">
